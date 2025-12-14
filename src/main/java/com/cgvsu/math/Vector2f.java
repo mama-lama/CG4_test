@@ -28,9 +28,33 @@ public class Vector2f {
     public void setY(float newY) {
         this.y = newY;
     }
-
+    // ----------------- ОПЕРАЦИИ НАД ВЕКТОРАМИ ---------------
+    // Сложение
+    public Vector2f addition(Vector2f other) {
+        return new Vector2f(this.x + other.x, this.y + other.y);
+    }
+    // Вычитание
+    public Vector2f subtraction(Vector2f other) {
+        return new Vector2f(this.x - other.x, this.y - other.y);
+    }
+    // Умножение на скаляр
+    public Vector2f multiplication(float scalar) {
+        return new Vector2f(this.x * scalar, this.y * scalar);
+    }
+    // Деление на скаляр
+    public Vector2f division(float scalar) {
+        checkDivisionByZero(scalar);
+        return new Vector2f(this.x / scalar, this.y / scalar);
+    }
     // ---------------------- ВЫВОД ВЕКТОРА -------------------
     public String toString() {
         return "(" + x + "; " + y + ")";
+    }
+
+    // ---------------------- ОШИБКИ --------------------------
+    private static void checkDivisionByZero(float scalar) {
+        if (Math.abs(scalar) < 0.0000001) {
+
+        }
     }
 }
