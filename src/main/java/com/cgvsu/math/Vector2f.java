@@ -46,6 +46,22 @@ public class Vector2f {
         checkDivisionByZero(scalar);
         return new Vector2f(this.x / scalar, this.y / scalar);
     }
+
+    // ---------------------- ДРУГИЕ МЕТОДЫ -------------------
+    // Длина вектора
+    public float length() {
+        return (float) Math.sqrt(x * x + y * y);
+    }
+    // Нормализация вектора
+    public Vector2f normalize() {
+        float len = length();
+        return this.division(len);
+    }
+    // Скалярное произведение
+    public float scalarProduct(Vector2f other) {
+        return (float) Math.sqrt(this.x * other.x + other.y * this.y);
+    }
+
     // ---------------------- ВЫВОД ВЕКТОРА -------------------
     public String toString() {
         return "(" + x + "; " + y + ")";
@@ -54,7 +70,7 @@ public class Vector2f {
     // ---------------------- ОШИБКИ --------------------------
     private static void checkDivisionByZero(float scalar) {
         if (Math.abs(scalar) < 0.0000001) {
-
+            throw new ArithmeticException("Деление на ноль не допускается! Получено: " + scalar);
         }
     }
 }
