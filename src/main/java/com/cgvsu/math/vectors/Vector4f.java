@@ -64,6 +64,21 @@ public class Vector4f {
         return new Vector4f(this.x / scalar, this.y / scalar, this.z / scalar, this.w / scalar);
     }
 
+    // ------------------------- ДРУГИЕ МЕТОДЫ ----------------------------
+    // Длина вектора
+    public float length() {
+        return (float) Math.sqrt(x * x + y * y + z * z + w * w);
+    }
+    // Нормализация вектора
+    public Vector4f normalize() {
+        float len = length();
+        return this.division(len);
+    }
+    // Скалярное произведение
+    public float scalarProduct(Vector4f other) {
+        return this.x * other.x + this.y * other.y + this.z * other.z + this.w * other.w;
+    }
+
     // ------------------------- ВЫВОД -------------------------------------
     public String toString() {
         return "(" + x + "; " + y + "; " + z + "; " + w + ")";

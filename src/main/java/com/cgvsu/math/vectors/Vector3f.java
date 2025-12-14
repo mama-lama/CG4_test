@@ -68,7 +68,7 @@ public class Vector3f {
         return this.division(len);
     }
     // Скалярное произведение
-    public double scalarProduct(Vector3f other) {
+    public float scalarProduct(Vector3f other) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
     // Векторное произведение
