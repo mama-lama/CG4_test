@@ -45,8 +45,34 @@ public class Vector4f {
         this.w = w;
     }
 
+    // ----------------- ОПЕРАЦИИ НАД ВЕКТОРАМИ ----------------------
+    // Сложение
+    public Vector4f addition(Vector4f other) {
+        return new Vector4f(this.x + other.x, this.y + other.y, this.z + other.z, this.w + other.w);
+    }
+    // Вычитание
+    public Vector4f subtraction(Vector4f other) {
+        return new Vector4f(this.x - other.x, this.y - other.y, this.z - other.z, this.w - other.w);
+    }
+    // Умножение
+    public Vector4f multiplication(float scalar) {
+        return new Vector4f(this.x * scalar, this.y * scalar, this.z * scalar, this.w * scalar);
+    }
+    // Деление
+    public Vector4f division(float scalar) {
+        checkDivisionByZero(scalar);
+        return new Vector4f(this.x / scalar, this.y / scalar, this.z / scalar, this.w / scalar);
+    }
+
     // ------------------------- ВЫВОД -------------------------------------
     public String toString() {
         return "(" + x + "; " + y + "; " + z + "; " + w + ")";
+    }
+
+    // ----------------------- ОШИБКИ --------------------------------------
+    private static void checkDivisionByZero(float scalar) {
+        if (Math.abs(scalar) < 0.0000001) {
+            throw new ArithmeticException("Деление на ноль не допускается! Получено: " + scalar);
+        }
     }
 }
