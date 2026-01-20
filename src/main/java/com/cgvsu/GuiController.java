@@ -11,13 +11,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import javafx.scene.image.Image;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.io.File;
 import javax.vecmath.Vector3f;
 
+import com.cgvsu.math.NormalsCalculator;
 import com.cgvsu.model.Model;
+import com.cgvsu.model.ModelTriangulator;
 import com.cgvsu.objreader.ObjReader;
 import com.cgvsu.render_engine.Camera;
 
@@ -32,6 +35,7 @@ public class GuiController {
     private Canvas canvas;
 
     private Model mesh = null;
+    private Image texture = null;
 
     private Camera camera = new Camera(
             new Vector3f(0, 00, 100),
@@ -56,7 +60,7 @@ public class GuiController {
             camera.setAspectRatio((float) (width / height));
 
             if (mesh != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height, texture);
             }
         });
 
@@ -80,10 +84,27 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
-            // todo: обработка ошибок
+            ModelTriangulator.triangulate(mesh);
+            NormalsCalculator.recalculateNormals(mesh);
         } catch (IOException exception) {
 
         }
+    }
+
+    @FXML
+    private void onOpenTextureMenuItemClick() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image (*.png, *.jpg, *.jpeg, *.bmp)", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
+                new FileChooser.ExtensionFilter("All Files", "*.*"));
+        fileChooser.setTitle("Load Texture");
+
+        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+
+        texture = new Image(file.toURI().toString());
     }
 
     @FXML
