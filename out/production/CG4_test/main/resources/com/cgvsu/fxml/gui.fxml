@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<BorderPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cgvsu.GuiController" prefWidth="1200.0" prefHeight="750.0">
+        <top>
+            <MenuBar fx:id="menuBar">
+                <Menu mnemonicParsing="false" text="Файл">
+                    <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Загрузить модель">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="F"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#onSaveModelMenuItemClick" text="Сохранить как..."/>
+                    <CheckMenuItem fx:id="applyTransformsMenuItem" mnemonicParsing="false" text="Применять трансформации при сохранении"/>
+                    <CheckMenuItem fx:id="autoPostprocessMenuItem" mnemonicParsing="false" text="Авто триангуляция + нормали"/>
+                    <MenuItem mnemonicParsing="false" onAction="#onOpenTextureMenuItemClick" text="Загрузить текстуру"/>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Камера">
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraForward" text="Вперёд">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraBackward" text="Назад">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="DOWN"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraLeft" text="Влево">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="LEFT"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraRight" text="Вправо">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="RIGHT"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraUp" text="Вверх">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="W"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraDown" text="Вниз">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="S"/>
+                        </accelerator>
+                    </MenuItem>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Вид">
+                    <CheckMenuItem fx:id="darkThemeMenuItem" mnemonicParsing="false" onAction="#onToggleTheme" text="Тёмная тема"/>
+                    <CheckMenuItem fx:id="wireframeMenuItem" mnemonicParsing="false" onAction="#onRenderSettingsChanged" text="Каркасная сетка"/>
+                    <CheckMenuItem fx:id="textureMenuItem" mnemonicParsing="false" onAction="#onRenderSettingsChanged" text="Текстура"/>
+                    <CheckMenuItem fx:id="lightingMenuItem" mnemonicParsing="false" onAction="#onRenderSettingsChanged" text="Освещение"/>
+                    <CheckMenuItem fx:id="showCamerasMenuItem" mnemonicParsing="false" onAction="#onRenderSettingsChanged" text="Показывать камеры"/>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Инструменты">
+                    <MenuItem mnemonicParsing="false" onAction="#onPostprocessModelsClick" text="Триангуляция + пересчёт нормалей"/>
+                </Menu>
+            </MenuBar>
+        </top>
+        <left>
+            <ScrollPane fitToWidth="true" prefWidth="240.0" fitToHeight="true">
+                <content>
+                    <VBox fx:id="sidePanel" prefWidth="230.0" spacing="10.0" styleClass="side-panel">
+                        <Label text="Модели сцены" styleClass="panel-title"/>
+                        <ListView fx:id="modelListView" prefHeight="90.0" VBox.vgrow="NEVER"/>
+                        <HBox spacing="8.0">
+                            <Button fx:id="removeModelButton" mnemonicParsing="false" onAction="#onRemoveModelClick" text="Удалить"/>
+                        </HBox>
+                        <Label fx:id="selectionStatusLabel" text="Выбрано моделей: 0" styleClass="muted-text"/>
+                        <Separator/>
+                        <Label text="Редактирование" styleClass="panel-title"/>
+                        <GridPane hgap="6.0" vgap="6.0" prefWidth="220.0">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="110.0" prefWidth="110.0"/>
+                                <ColumnConstraints minWidth="100.0" prefWidth="100.0"/>
+                            </columnConstraints>
+                            <Label text="Вершина (инд.):" wrapText="true" maxWidth="110.0" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <TextField fx:id="vertexIndexField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <Button mnemonicParsing="false" onAction="#onDeleteVertexClick" text="Удалить" prefWidth="140.0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                            <Label text="Полигон (инд.):" wrapText="true" maxWidth="110.0" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <TextField fx:id="polygonIndexField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                            <Button mnemonicParsing="false" onAction="#onDeletePolygonClick" text="Удалить" prefWidth="140.0" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        </GridPane>
+                        <Separator/>
+                        <Label text="Трансформации" styleClass="panel-title"/>
+                        <GridPane hgap="6.0" vgap="6.0" prefWidth="220.0">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="110.0" prefWidth="110.0"/>
+                                <ColumnConstraints minWidth="100.0" prefWidth="100.0"/>
+                            </columnConstraints>
+                            <Label text="Сдвиг (x,y,z):" wrapText="true" maxWidth="110.0" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <HBox spacing="4.0" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                <TextField fx:id="translateXField" prefWidth="48.0"/>
+                                <TextField fx:id="translateYField" prefWidth="48.0"/>
+                                <TextField fx:id="translateZField" prefWidth="48.0"/>
+                            </HBox>
+                            <Button mnemonicParsing="false" onAction="#onApplyTranslationClick" text="Применить" prefWidth="140.0" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <Label text="Поворот (град.):" wrapText="true" maxWidth="110.0" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <HBox spacing="4.0" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                                <TextField fx:id="rotateXField" prefWidth="48.0"/>
+                                <TextField fx:id="rotateYField" prefWidth="48.0"/>
+                                <TextField fx:id="rotateZField" prefWidth="48.0"/>
+                            </HBox>
+                            <Button mnemonicParsing="false" onAction="#onApplyRotationClick" text="Применить" prefWidth="140.0" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                            <Label text="Масштаб (x,y,z):" wrapText="true" maxWidth="110.0" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <HBox spacing="4.0" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                                <TextField fx:id="scaleXField" prefWidth="48.0"/>
+                                <TextField fx:id="scaleYField" prefWidth="48.0"/>
+                                <TextField fx:id="scaleZField" prefWidth="48.0"/>
+                            </HBox>
+                            <Button mnemonicParsing="false" onAction="#onApplyScaleClick" text="Применить" prefWidth="140.0" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                            <Button mnemonicParsing="false" onAction="#onResetTransformClick" text="Сбросить" prefWidth="140.0" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                        </GridPane>
+                        <Separator/>
+                        <Label text="Отрисовка" styleClass="panel-title"/>
+                        <GridPane hgap="6.0" vgap="6.0">
+                            <Label text="Цвет:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <ColorPicker fx:id="baseColorPicker" onAction="#onRenderSettingsChanged" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        </GridPane>
+                        <Separator/>
+                        <Label text="Камеры" styleClass="panel-title"/>
+                        <ListView fx:id="cameraListView" prefHeight="90.0" VBox.vgrow="NEVER"/>
+                        <VBox spacing="6.0">
+                            <Button mnemonicParsing="false" onAction="#onAddCameraClick" text="Добавить камеру" prefWidth="170.0"/>
+                            <Button mnemonicParsing="false" onAction="#onRemoveCameraClick" text="Удалить камеру" prefWidth="170.0"/>
+                            <Button mnemonicParsing="false" onAction="#onSetActiveCameraClick" text="Сделать активной" prefWidth="170.0"/>
+                        </VBox>
+                        <Label fx:id="activeCameraLabel" text="Активная камера: Камера 1" styleClass="muted-text"/>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </left>
+        <center>
+            <AnchorPane fx:id="canvasPane">
+                <Canvas fx:id="canvas" width="900.0" height="650.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"/>
+            </AnchorPane>
+        </center>
+</BorderPane>

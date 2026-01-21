@@ -1,15 +1,18 @@
 package com.cgvsu.scene;
 
 import com.cgvsu.model.Model;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class CameraGizmoFactoryTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class CameraGizmoFactoryTest {
 
     @Test
-    void testGizmoHasNormals() {
+    public void gizmoHasTriangles() {
         Model model = CameraGizmoFactory.createGizmo();
-        Assertions.assertFalse(model.vertices.isEmpty());
-        Assertions.assertEquals(model.vertices.size(), model.normals.size());
+        assertFalse(model.vertices.isEmpty());
+        assertFalse(model.polygons.isEmpty());
+        assertTrue(model.polygons.stream().allMatch(p -> p.getVertexIndices().size() == 3));
     }
 }

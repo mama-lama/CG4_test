@@ -1,0 +1,56 @@
+.root {
+    -fx-font-family: "Trebuchet MS";
+    -fx-background-color: linear-gradient(to bottom, #1c1f24, #15181c);
+}
+
+.menu-bar {
+    -fx-background-color: #0f1114;
+    -fx-padding: 4 6 4 6;
+}
+
+.menu-bar .label {
+    -fx-text-fill: #e8e4dc;
+}
+
+.side-panel {
+    -fx-padding: 12;
+    -fx-background-color: #1f2228;
+    -fx-border-color: #313640;
+    -fx-border-width: 0 1 0 0;
+}
+
+.panel-title {
+    -fx-font-size: 15px;
+    -fx-text-fill: #f2eadc;
+    -fx-font-weight: bold;
+}
+
+.muted-text {
+    -fx-text-fill: #b5ad9f;
+}
+
+.list-view {
+    -fx-background-color: #252932;
+    -fx-border-color: #3a404d;
+}
+
+.button {
+    -fx-background-color: #c98248;
+    -fx-text-fill: #111111;
+    -fx-background-radius: 6;
+    -fx-padding: 6 12 6 12;
+}
+
+.button:hover {
+    -fx-background-color: #db955f;
+}
+
+.text-field {
+    -fx-background-color: #14171c;
+    -fx-border-color: #424856;
+    -fx-text-fill: #e6dfd2;
+}
+
+.label {
+    -fx-text-fill: #e6dfd2;
+}

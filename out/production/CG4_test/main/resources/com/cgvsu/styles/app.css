@@ -1,0 +1,73 @@
+.root {
+    -fx-font-family: "Trebuchet MS";
+    -fx-background-color: linear-gradient(to bottom, #f6f2ea, #e3dccf);
+}
+
+.menu-bar {
+    -fx-background-color: #e8e2d6;
+    -fx-padding: 4 6 4 6;
+}
+
+.menu-bar .label {
+    -fx-text-fill: #1d1a15;
+}
+
+.menu-item .label {
+    -fx-text-fill: #1d1a15;
+}
+
+.side-panel {
+    -fx-padding: 12;
+    -fx-background-color: #f0ede5;
+    -fx-border-color: #c2b9a6;
+    -fx-border-width: 0 1 0 0;
+}
+
+.panel-title {
+    -fx-font-size: 15px;
+    -fx-text-fill: #2a2a2a;
+    -fx-font-weight: bold;
+}
+
+.muted-text {
+    -fx-text-fill: #6b6558;
+}
+
+.list-view {
+    -fx-background-color: #faf7f1;
+    -fx-border-color: #d1c7b5;
+}
+
+.list-view .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+}
+
+.button {
+    -fx-background-color: #d2cabc;
+    -fx-text-fill: #1d1a15;
+    -fx-background-radius: 6;
+    -fx-padding: 6 12 6 12;
+}
+
+.button:hover {
+    -fx-background-color: #c5bcad;
+}
+
+.text-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #c9c0ae;
+    -fx-border-radius: 4;
+}
+
+.color-picker .label {
+    -fx-text-fill: #1d1a15;
+}
+
+.label {
+    -fx-text-fill: #1d1a15;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: #1d1a15;
+}

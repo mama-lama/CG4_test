@@ -1,7 +1,6 @@
 package com.cgvsu.render_engine;
 
 public class RenderSettings {
-    // Point 15: render mode toggles and base color.
     private boolean drawWireframe;
     private boolean useTexture;
     private boolean useLighting;
