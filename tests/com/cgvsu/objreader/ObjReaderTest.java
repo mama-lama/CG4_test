@@ -1,69 +1,71 @@
 package com.cgvsu.objreader;
 
-
+import com.cgvsu.math.vectors.Vector2f;
 import com.cgvsu.math.vectors.Vector3f;
-import com.cgvsu.objreader.ObjReader;
-import com.cgvsu.objreader.ObjReaderException;
+import com.cgvsu.model.Model;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 class ObjReaderTest {
 
     @Test
-    public void testParseVertex01() {
-        ArrayList<String> wordsInLineWithoutToken = new ArrayList<>(Arrays.asList("1.01", "1.02", "1.03"));
-        Vector3f result = ObjReader.parseVertex(wordsInLineWithoutToken, 5);
-        Vector3f expectedResult = new Vector3f(1.01f, 1.02f, 1.03f);
-        Assertions.assertTrue(result.equals(expectedResult));
+    void testParseVertex() {
+        Vector3f result = ObjReader.parseVertex(List.of("1.01", "1.02", "1.03"), 5);
+        Assertions.assertEquals(1.01f, result.getX());
+        Assertions.assertEquals(1.02f, result.getY());
+        Assertions.assertEquals(1.03f, result.getZ());
     }
 
     @Test
-    public void testParseVertex02() {
-        ArrayList<String> wordsInLineWithoutToken = new ArrayList<>(Arrays.asList("1.01", "1.02", "1.03"));
-        Vector3f result = ObjReader.parseVertex(wordsInLineWithoutToken, 5);
-        Vector3f expectedResult = new Vector3f(1.01f, 1.02f, 1.10f);
-        Assertions.assertFalse(result.equals(expectedResult));
+    void testParseTextureVertex() {
+        Vector2f result = ObjReader.parseTextureVertex(List.of("0.25", "0.75"), 7);
+        Assertions.assertEquals(0.25f, result.getX());
+        Assertions.assertEquals(0.75f, result.getY());
     }
 
     @Test
-    public void testParseVertex03() {
-        ArrayList<String> wordsInLineWithoutToken = new ArrayList<>(Arrays.asList("ab", "o", "ba"));
-        try {
-            ObjReader.parseVertex(wordsInLineWithoutToken, 10);
-        } catch (ObjReaderException exception) {
-            String expectedError = "Error parsing OBJ file on line: 10. Failed to parse float value.";
-            Assertions.assertEquals(expectedError, exception.getMessage());
-        }
+    void testReadSimpleObj() {
+        String content = """
+                v 0 0 0
+                v 1 0 0
+                v 0 1 0
+                vt 0 0
+                vt 1 0
+                vt 0 1
+                vn 0 0 1
+                vn 0 0 1
+                vn 0 0 1
+                f 1/1/1 2/2/2 3/3/3
+                """;
+        Model model = ObjReader.read(content);
+        Assertions.assertEquals(3, model.vertices.size());
+        Assertions.assertEquals(3, model.textureVertices.size());
+        Assertions.assertEquals(3, model.normals.size());
+        Assertions.assertEquals(1, model.polygons.size());
+        Assertions.assertEquals(List.of(0, 1, 2), model.polygons.get(0).getVertexIndices());
+        Assertions.assertEquals(List.of(0, 1, 2), model.polygons.get(0).getTextureVertexIndices());
+        Assertions.assertEquals(List.of(0, 1, 2), model.polygons.get(0).getNormalIndices());
     }
 
     @Test
-    public void testParseVertex04() {
-        ArrayList<String> wordsInLineWithoutToken = new ArrayList<>(Arrays.asList("1.0", "2.0"));
-        try {
-            ObjReader.parseVertex(wordsInLineWithoutToken, 10);
-        } catch (ObjReaderException exception) {
-            String expectedError = "Error parsing OBJ file on line: 10. Too few vertex arguments.";
-            Assertions.assertEquals(expectedError, exception.getMessage());
-        }
+    void testReadNegativeIndices() {
+        String content = """
+                v 0 0 0
+                v 1 0 0
+                v 0 1 0
+                f -3 -2 -1
+                """;
+        Model model = ObjReader.read(content);
+        Assertions.assertEquals(1, model.polygons.size());
+        Assertions.assertEquals(List.of(0, 1, 2), model.polygons.get(0).getVertexIndices());
     }
 
     @Test
-    public void testParseVertex05() {
-        // АГААА! Вот тест, который говорит, что у метода нет проверки на более, чем 3 числа
-        // А такой случай лучше не игнорировать, а сообщать пользователю, что у него что-то не так
-        // ассерт, чтобы не забыть про тест:
-        Assertions.assertTrue(false);
-
-
-        ArrayList<String> wordsInLineWithoutToken = new ArrayList<>(Arrays.asList("1.0", "2.0", "3.0", "4.0"));
-        try {
-            ObjReader.parseVertex(wordsInLineWithoutToken, 10);
-        } catch (ObjReaderException exception) {
-            String expectedError = "";
-            Assertions.assertEquals(expectedError, exception.getMessage());
-        }
+    void testInvalidFaceThrows() {
+        String content = "f 1 2";
+        ObjReaderException exception = Assertions.assertThrows(ObjReaderException.class, () -> ObjReader.read(content));
+        Assertions.assertTrue(exception.getMessage().contains("Face has fewer than 3 vertices."));
     }
 }

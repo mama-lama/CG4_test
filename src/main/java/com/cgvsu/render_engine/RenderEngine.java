@@ -10,6 +10,7 @@ import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2f;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
@@ -33,6 +34,16 @@ public class RenderEngine {
             final int width,
             final int height,
             final Image texture) {
+        render(graphicsContext, camera, List.of(mesh), width, height, texture);
+    }
+
+    public static void render(
+            final GraphicsContext graphicsContext,
+            final Camera camera,
+            final List<Model> meshes,
+            final int width,
+            final int height,
+            final Image texture) {
         Matrix4f modelMatrix = rotateScaleTranslate();
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
@@ -49,12 +60,33 @@ public class RenderEngine {
         javax.vecmath.Vector3f cameraPos = camera.getPosition();
         Vector3f lightPos = new Vector3f(cameraPos.x, cameraPos.y, cameraPos.z);
 
+        for (Model mesh : meshes) {
+            renderSingleModel(mesh, modelViewProjectionMatrix, width, height, colorBuffer, depthBuffer, textureSampler, lightPos);
+        }
+
+        graphicsContext.getPixelWriter().setPixels(
+                0,
+                0,
+                width,
+                height,
+                PixelFormat.getIntArgbInstance(),
+                colorBuffer,
+                0,
+                width);
+    }
+
+    private static void renderSingleModel(
+            Model mesh,
+            Matrix4f modelViewProjectionMatrix,
+            int width,
+            int height,
+            int[] colorBuffer,
+            float[] depthBuffer,
+            TextureSampler textureSampler,
+            Vector3f lightPos) {
         final int nPolygons = mesh.polygons.size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
             ArrayList<Integer> vertexIndices = mesh.polygons.get(polygonInd).getVertexIndices();
-            if (vertexIndices.size() < 3) {
-                continue;
-            }
             if (vertexIndices.size() != 3) {
                 continue;
             }
@@ -108,15 +140,5 @@ public class RenderEngine {
                     textureSampler,
                     lightPos);
         }
-
-        graphicsContext.getPixelWriter().setPixels(
-                0,
-                0,
-                width,
-                height,
-                PixelFormat.getIntArgbInstance(),
-                colorBuffer,
-                0,
-                width);
     }
 }
