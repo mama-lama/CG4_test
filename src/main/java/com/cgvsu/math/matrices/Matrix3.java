@@ -5,11 +5,11 @@ import com.cgvsu.math.vectors.Vector3f;
 public class Matrix3 implements Matrix<Matrix3, Vector3f> {
     private float[][] data = new float[3][3];
 
-    // -------------------------- Конструкторы ---------------------------
+    // Constructors.
     public Matrix3() {}
     public Matrix3(float[][] data) {
         if (data.length != 3 || data[0].length != 3) {
-            throw new IllegalArgumentException("Матрица должна быть 3x3");
+            throw new IllegalArgumentException("Matrix3 requires a 3x3 array.");
         }
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -25,7 +25,7 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
         data[2][0] = a20; data[2][1] = a21; data[2][2] = a22;
     }
 
-    // ----------------------- ГЕТТЕРЫ И СЕТТЕРЫ ---------------------------
+    // Element access.
     @Override
     public float get(int row, int col) {
         checkIndices(row, col);
@@ -49,8 +49,7 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
         data[2][col] = c;
     }
 
-    // ----------------------- СОЗДАНИЕ МАТРИЦ ---------------------
-    // Единичная
+    // Identity and zero.
     @Override
     public Matrix3 identity() {
         float[][] id = new float[3][3];
@@ -61,14 +60,12 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
 
         return new Matrix3(id);
     }
-    // Нулевая
     @Override
     public Matrix3 zero() {
         return new Matrix3();
     }
 
-    // --------------------------- РАБОТА С МАТРИЦАМИ --------------------------
-    // Сложение
+    // Arithmetic.
     @Override
     public Matrix3 add(Matrix3 other) {
         float[][] result = new float[3][3];
@@ -81,7 +78,6 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
 
         return new Matrix3(result);
     }
-    // Вычитание
     @Override
     public Matrix3 sub(Matrix3 other) {
         float[][] result = new float[3][3];
@@ -94,7 +90,6 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
 
         return new Matrix3(result);
     }
-    // Умножение на вектор
     @Override
     public Vector3f mult(Vector3f vector) {
         float x = data[0][0] * vector.getX() + data[0][1] * vector.getY() + data[0][2] * vector.getZ();
@@ -103,7 +98,6 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
 
         return new Vector3f(x, y, z);
     }
-    // Умножение на матрицу
     @Override
     public Matrix3 mult(Matrix3 other) {
         float[][] result = new float[3][3];
@@ -121,7 +115,6 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
         return new Matrix3(result);
     }
 
-    // Транспонирование
     @Override
     public Matrix3 trans() {
         float[][] result = new float[3][3];
@@ -135,7 +128,6 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
         return new Matrix3(result);
     }
 
-    // ------------------------- ВЫВОД МАТРИЦЫ -----------------------------------
     @Override
     public void print() {
         System.out.println("Matrix 3x3:");
@@ -149,11 +141,10 @@ public class Matrix3 implements Matrix<Matrix3, Vector3f> {
         }
     }
 
-    // ---------------------------- ОШИБКИ ---------------------------------
     private void checkIndices(int row, int col) {
         if (row < 0 || row >= 3 || col < 0 || col >= 3) {
             throw new IndexOutOfBoundsException(
-                    String.format("Индексы [%d][%d] выходят за границы матрицы 3x3", row, col));
+                    String.format("Index [%d][%d] out of bounds for 3x3 matrix", row, col));
         }
     }
 }

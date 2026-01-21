@@ -1,13 +1,11 @@
 package com.cgvsu.math.vectors;
 
-import com.cgvsu.math.vectors.Vector;
-
 public class Vector3f implements Vector<Vector3f> {
     private float x;
     private float y;
     private float z;
 
-    // ---------------------- КОНСТРУКТОРЫ ----------------------------
+    // Constructors.
     public Vector3f() {
         this(0, 0, 0);
     }
@@ -18,14 +16,14 @@ public class Vector3f implements Vector<Vector3f> {
     }
     public Vector3f(float[] components) {
         if (components.length != 3) {
-            throw new IllegalArgumentException("Vector3f требует 3 компонента");
+            throw new IllegalArgumentException("Vector3f requires 3 components.");
         }
         this.x = components[0];
         this.y = components[1];
         this.z = components[2];
     }
 
-    // ----------------------- ГЕТЕРЫ ---------------------------------
+    // Accessors.
     public float getX() {
         return x;
     }
@@ -36,7 +34,7 @@ public class Vector3f implements Vector<Vector3f> {
         return z;
     }
 
-    // ----------------------- СЕТТЕРЫ -----------------------------------
+    // Mutators.
     public void setX(float newX) {
         this.x = newX;
     }
@@ -52,36 +50,30 @@ public class Vector3f implements Vector<Vector3f> {
         this.z = newZ;
     }
 
-    // ----------------- ОПЕРАЦИИ НАД ВЕКТОРАМИ ----------------------
-    // Сложение
+    // Basic arithmetic.
     @Override
     public Vector3f add(Vector3f other) {
         return new Vector3f(this.x + other.x, this.y + other.y, this.z + other.z);
     }
-    // Вычитание
     @Override
     public Vector3f sub(Vector3f other) {
         return new Vector3f(this.x - other.x, this.y - other.y, this.z - other.z);
     }
-    // Умножение
     @Override
     public Vector3f mult(float scalar) {
         return new Vector3f(this.x * scalar, this.y * scalar, this.z * scalar);
     }
-    // Деление
     @Override
     public Vector3f div(float scalar) {
         checkDivisionByZero(scalar);
         return new Vector3f(this.x / scalar, this.y / scalar, this.z / scalar);
     }
 
-    // -------------------------- ДРУГИЕ МЕТОДЫ --------------------
-    // Длина вектора
+    // Length and scalar operations.
     @Override
     public float length() {
         return (float) Math.sqrt(x * x + y * y + z * z);
     }
-    // Нормализация вектора
     @Override
     public Vector3f normalize() {
         float len = length();
@@ -90,26 +82,27 @@ public class Vector3f implements Vector<Vector3f> {
         }
         return this.div(len);
     }
-    // Скалярное произведение
     @Override
     public float scalarProd(Vector3f other) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }
-    // Векторное произведение
     public Vector3f vectorProd(Vector3f other) {
-        return new Vector3f(this.y * other.z - this.z * other.y, this.z * other.x - this.x * other.z, this.x * other.y - this.y * other.x);
+        return new Vector3f(
+                this.y * other.z - this.z * other.y,
+                this.z * other.x - this.x * other.z,
+                this.x * other.y - this.y * other.x
+        );
     }
 
-    // -------------------------- ВЫВОД ВЕКТОРА --------------------------
+    // Debug representation.
     @Override
     public String toString() {
         return "(" + x + "; " + y + "; " + z + ")";
     }
 
-    // -------------------------- ОШИБКИ ----------------------------------
     private static void checkDivisionByZero(float scalar) {
         if (Math.abs(scalar) < 1e-7f) {
-            throw new ArithmeticException("Деление на ноль не допускается! Получено: " + scalar);
+            throw new ArithmeticException("Division by zero in vector division: " + scalar);
         }
     }
 }

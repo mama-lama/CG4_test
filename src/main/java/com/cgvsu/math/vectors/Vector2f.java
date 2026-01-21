@@ -1,14 +1,12 @@
 package com.cgvsu.math.vectors;
 
-import com.cgvsu.math.vectors.Vector;
-
 public class Vector2f implements Vector<Vector2f> {
     private float x;
     private float y;
 
-    // --------------- КОНСТРУКТОРЫ --------------------
+    // Constructors.
     public Vector2f() {
-        this(0,0);
+        this(0, 0);
     }
     public Vector2f(float x, float y) {
         this.x = x;
@@ -16,13 +14,13 @@ public class Vector2f implements Vector<Vector2f> {
     }
     public Vector2f(float[] components) {
         if (components.length != 2) {
-            throw new IllegalArgumentException("Vector2f требует 2 компонента");
+            throw new IllegalArgumentException("Vector2f requires 2 components.");
         }
         this.x = components[0];
         this.y = components[1];
     }
 
-    // ---------------- ГЕТЕРЫ ---------------------------
+    // Accessors.
     public float getX() {
         return x;
     }
@@ -30,7 +28,7 @@ public class Vector2f implements Vector<Vector2f> {
         return y;
     }
 
-    // ----------------- СЕТТЕРЫ --------------------------
+    // Mutators.
     public void setX(float newX) {
         this.x = newX;
     }
@@ -42,36 +40,30 @@ public class Vector2f implements Vector<Vector2f> {
         this.y = newY;
     }
 
-    // ----------------- ОПЕРАЦИИ НАД ВЕКТОРАМИ ---------------
-    // Сложение
+    // Basic arithmetic.
     @Override
     public Vector2f add(Vector2f other) {
         return new Vector2f(this.x + other.x, this.y + other.y);
     }
-    // Вычитание
     @Override
     public Vector2f sub(Vector2f other) {
         return new Vector2f(this.x - other.x, this.y - other.y);
     }
-    // Умножение на скаляр
     @Override
     public Vector2f mult(float scalar) {
         return new Vector2f(this.x * scalar, this.y * scalar);
     }
-    // Деление на скаляр
     @Override
     public Vector2f div(float scalar) {
         checkDivisionByZero(scalar);
         return new Vector2f(this.x / scalar, this.y / scalar);
     }
 
-    // ---------------------- ДРУГИЕ МЕТОДЫ -------------------
-    // Длина вектора
+    // Length and scalar operations.
     @Override
     public float length() {
         return (float) Math.sqrt(x * x + y * y);
     }
-    // Нормализация вектора
     @Override
     public Vector2f normalize() {
         float len = length();
@@ -80,22 +72,20 @@ public class Vector2f implements Vector<Vector2f> {
         }
         return this.div(len);
     }
-    // Скалярное произведение
     @Override
     public float scalarProd(Vector2f other) {
         return this.x * other.x + this.y * other.y;
     }
 
-    // ---------------------- ВЫВОД ВЕКТОРА -------------------
+    // Debug representation.
     @Override
     public String toString() {
         return "(" + x + "; " + y + ")";
     }
 
-    // ---------------------- ОШИБКИ --------------------------
     private static void checkDivisionByZero(float scalar) {
         if (Math.abs(scalar) < 1e-7) {
-            throw new ArithmeticException("Деление на ноль не допускается! Получено: " + scalar);
+            throw new ArithmeticException("Division by zero in vector division: " + scalar);
         }
     }
 }

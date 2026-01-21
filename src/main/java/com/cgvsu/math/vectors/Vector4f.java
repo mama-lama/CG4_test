@@ -1,14 +1,12 @@
 package com.cgvsu.math.vectors;
 
-import com.cgvsu.math.vectors.Vector;
-
 public class Vector4f implements Vector<Vector4f> {
     private float x;
     private float y;
     private float z;
     private float w;
 
-    // ------------------------------- КОНСТРУКТОРЫ ----------------------------
+    // Constructors.
     public Vector4f() {
         this(0, 0, 0, 0);
     }
@@ -20,7 +18,7 @@ public class Vector4f implements Vector<Vector4f> {
     }
     public Vector4f(float[] components) {
         if (components.length != 4) {
-            throw new IllegalArgumentException("Vector4f требует 4 компонента");
+            throw new IllegalArgumentException("Vector4f requires 4 components.");
         }
         this.x = components[0];
         this.y = components[1];
@@ -28,7 +26,7 @@ public class Vector4f implements Vector<Vector4f> {
         this.w = components[3];
     }
 
-    // ---------------------------- ГЕТТЕРЫ -------------------------------
+    // Accessors.
     public float getX() {
         return x;
     }
@@ -42,7 +40,7 @@ public class Vector4f implements Vector<Vector4f> {
         return w;
     }
 
-    // ---------------------------- СЕТТЕРЫ -------------------------------
+    // Mutators.
     public void setX(float newX) {
         this.x = newX;
     }
@@ -62,36 +60,30 @@ public class Vector4f implements Vector<Vector4f> {
         this.w = newW;
     }
 
-    // ----------------- ОПЕРАЦИИ НАД ВЕКТОРАМИ ----------------------
-    // Сложение
+    // Basic arithmetic.
     @Override
     public Vector4f add(Vector4f other) {
         return new Vector4f(this.x + other.x, this.y + other.y, this.z + other.z, this.w + other.w);
     }
-    // Вычитание
     @Override
     public Vector4f sub(Vector4f other) {
         return new Vector4f(this.x - other.x, this.y - other.y, this.z - other.z, this.w - other.w);
     }
-    // Умножение
     @Override
     public Vector4f mult(float scalar) {
         return new Vector4f(this.x * scalar, this.y * scalar, this.z * scalar, this.w * scalar);
     }
-    // Деление
     @Override
     public Vector4f div(float scalar) {
         checkDivisionByZero(scalar);
         return new Vector4f(this.x / scalar, this.y / scalar, this.z / scalar, this.w / scalar);
     }
 
-    // ------------------------- ДРУГИЕ МЕТОДЫ ----------------------------
-    // Длина вектора
+    // Length and scalar operations.
     @Override
     public float length() {
         return (float) Math.sqrt(x * x + y * y + z * z + w * w);
     }
-    // Нормализация вектора
     @Override
     public Vector4f normalize() {
         float len = length();
@@ -100,22 +92,20 @@ public class Vector4f implements Vector<Vector4f> {
         }
         return this.div(len);
     }
-    // Скалярное произведение
     @Override
     public float scalarProd(Vector4f other) {
         return this.x * other.x + this.y * other.y + this.z * other.z + this.w * other.w;
     }
 
-    // ------------------------- ВЫВОД -------------------------------------
+    // Debug representation.
     @Override
     public String toString() {
         return "(" + x + "; " + y + "; " + z + "; " + w + ")";
     }
 
-    // ----------------------- ОШИБКИ --------------------------------------
     private static void checkDivisionByZero(float scalar) {
-        if (Math.abs(scalar) < 0.0000001) {
-            throw new ArithmeticException("Деление на ноль не допускается! Получено: " + scalar);
+        if (Math.abs(scalar) < 1e-7f) {
+            throw new ArithmeticException("Division by zero in vector division: " + scalar);
         }
     }
 }

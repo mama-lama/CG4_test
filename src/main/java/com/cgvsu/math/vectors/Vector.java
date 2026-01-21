@@ -1,17 +1,17 @@
 package com.cgvsu.math.vectors;
 
 public interface Vector<T extends Vector<T>> {
-    // Операции над векторами
+    // Basic vector arithmetic.
     T add(T other);
     T sub(T other);
     T mult(float scalar);
     T div(float scalar);
 
-    // Другие методы
+    // Length and scalar operations.
     float length();
     T normalize();
     float scalarProd(T other);
 
-    // Вывод
+    // Debug representation.
     String toString();
 }

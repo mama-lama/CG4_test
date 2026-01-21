@@ -1,16 +1,15 @@
 package com.cgvsu.math.matrices;
 
-import com.cgvsu.math.matrices.Matrix;
 import com.cgvsu.math.vectors.Vector2f;
 
 public class Matrix2 implements Matrix<Matrix2, Vector2f> {
     private float[][] data = new float[2][2];
 
-    // -------------------------- Конструкторы ---------------------------
-    public Matrix2() {} // Нулевая по умолчанию
+    // Constructors.
+    public Matrix2() {}
     public Matrix2(float[][] data) {
         if (data.length != 2 || data[0].length != 2) {
-            throw new IllegalArgumentException("Матрица должна быть 2x2");
+            throw new IllegalArgumentException("Matrix2 requires a 2x2 array.");
         }
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
@@ -25,7 +24,7 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
         data[1][1] = a22;
     }
 
-    // ----------------------- ГЕТТЕРЫ И СЕТТЕРЫ ---------------------------
+    // Element access.
     @Override
     public float get(int row, int col) {
         checkIndices(row, col);
@@ -47,8 +46,7 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
         data[1][col] = b;
     }
 
-    // ----------------------- СОЗДАНИЕ МАТРИЦ ---------------------
-    // Единичная
+    // Identity and zero.
     @Override
     public Matrix2 identity() {
         float[][] id = new float[2][2];
@@ -59,14 +57,12 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
 
         return new Matrix2(id);
     }
-    // Нулевая
     @Override
     public Matrix2 zero() {
         return new Matrix2();
     }
 
-    // --------------------------- РАБОТА С МАТРИЦАМИ --------------------------
-    //
+    // Arithmetic.
     @Override
     public Matrix2 add(Matrix2 other) {
         float[][] result = new float[2][2];
@@ -79,7 +75,6 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
 
         return new Matrix2(result);
     }
-    // Вычитание
     @Override
     public Matrix2 sub(Matrix2 other) {
         float[][] result = new float[2][2];
@@ -92,7 +87,6 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
 
         return new Matrix2(result);
     }
-    // Умножение на вектор
     @Override
     public Vector2f mult(Vector2f vector) {
         float x = data[0][0] * vector.getX() + data[0][1] * vector.getY();
@@ -100,7 +94,6 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
 
         return new Vector2f(x, y);
     }
-    // Умножение на матрицу
     @Override
     public Matrix2 mult(Matrix2 other) {
         float[][] result = new float[2][2];
@@ -118,7 +111,6 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
         return new Matrix2(result);
     }
 
-    // Транспонирование
     @Override
     public Matrix2 trans() {
         float[][] result = new float[2][2];
@@ -132,7 +124,6 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
         return new Matrix2(result);
     }
 
-    // ------------------------- ВЫВОД МАТРИЦЫ -----------------------------------
     @Override
     public void print() {
         System.out.println("Matrix 2x2:");
@@ -146,11 +137,10 @@ public class Matrix2 implements Matrix<Matrix2, Vector2f> {
         }
     }
 
-    // ------------------ ОШИБКИ --------------------------
     private void checkIndices(int row, int col) {
         if (row < 0 || row >= 2 || col < 0 || col >= 2) {
             throw new IndexOutOfBoundsException(
-                    String.format("Индексы [%d][%d] выходят за границы матрицы 2x2", row, col));
+                    String.format("Index [%d][%d] out of bounds for 2x2 matrix", row, col));
         }
     }
 }

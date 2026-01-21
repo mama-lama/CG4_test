@@ -5,11 +5,11 @@ import com.cgvsu.math.vectors.Vector4f;
 public class Matrix4 implements Matrix<Matrix4, Vector4f> {
     private float[][] data = new float[4][4];
 
-    // -------------------------- Конструкторы ---------------------------
+    // Constructors.
     public Matrix4() {}
     public Matrix4(float[][] data) {
         if (data.length != 4 || data[0].length != 4) {
-            throw new IllegalArgumentException("Матрица должна быть 4x4");
+            throw new IllegalArgumentException("Matrix4 requires a 4x4 array.");
         }
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -27,7 +27,7 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
         data[3][0] = a30; data[3][1] = a31; data[3][2] = a32; data[3][3] = a33;
     }
 
-    // ----------------------- ГЕТЕРЫ И СЕТЕРЫ ---------------------------
+    // Element access.
     @Override
     public float get(int row, int col) {
         checkIndices(row, col);
@@ -53,8 +53,7 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
         data[3][col] = d;
     }
 
-    // ----------------------- СОЗДАНИЕ МАТРИЦ ---------------------
-    // Единичная
+    // Identity and zero.
     @Override
     public Matrix4 identity() {
         float[][] id = new float[4][4];
@@ -65,14 +64,12 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
 
         return new Matrix4(id);
     }
-    // Нулевая
     @Override
     public Matrix4 zero() {
         return new Matrix4();
     }
 
-    // --------------------------- РАБОТА С МАТРИЦАМИ --------------------------
-    // Сложение
+    // Arithmetic.
     @Override
     public Matrix4 add(Matrix4 other) {
         float[][] result = new float[4][4];
@@ -85,7 +82,6 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
 
         return new Matrix4(result);
     }
-    // Вычитание
     @Override
     public Matrix4 sub(Matrix4 other) {
         float[][] result = new float[4][4];
@@ -98,7 +94,6 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
 
         return new Matrix4(result);
     }
-    // Умножение на вектор
     @Override
     public Vector4f mult(Vector4f vector) {
         float x = data[0][0] * vector.getX() + data[0][1] * vector.getY() +
@@ -115,7 +110,6 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
 
         return new Vector4f(x, y, z, w);
     }
-    // Умножение на матрицу
     @Override
     public Matrix4 mult(Matrix4 other) {
         float[][] result = new float[4][4];
@@ -133,7 +127,6 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
         return new Matrix4(result);
     }
 
-    // Транспонирование
     @Override
     public Matrix4 trans() {
         float[][] result = new float[4][4];
@@ -147,7 +140,6 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
         return new Matrix4(result);
     }
 
-    // ------------------------- ВЫВОД МАТРИЦЫ -----------------------------------
     @Override
     public void print() {
         System.out.println("Matrix 4x4:");
@@ -161,11 +153,10 @@ public class Matrix4 implements Matrix<Matrix4, Vector4f> {
         }
     }
 
-    // ----------------------- ОШИБКИ --------------------------
     private void checkIndices(int row, int col) {
         if (row < 0 || row >= 4 || col < 0 || col >= 4) {
             throw new IndexOutOfBoundsException(
-                    String.format("Индексы [%d][%d] выходят за границы матрицы 4x4", row, col));
+                    String.format("Index [%d][%d] out of bounds for 4x4 matrix", row, col));
         }
     }
 }
