@@ -1,66 +1,120 @@
 package com.cgvsu.render_engine;
-import javax.vecmath.*;
+
+import com.cgvsu.math.matrices.Matrix4;
+import com.cgvsu.math.vectors.Vector2f;
+import com.cgvsu.math.vectors.Vector3f;
+import com.cgvsu.math.vectors.Vector4f;
 
 public class GraphicConveyor {
 
-    public static Matrix4f rotateScaleTranslate() {
-        float[] matrix = new float[]{
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, 1, 0,
-                0, 0, 0, 1};
-        return new Matrix4f(matrix);
+    public static Matrix4 rotateScaleTranslate(Vector3f translation, Vector3f rotationDeg, Vector3f scale) {
+        // Point 9/10: model matrix for column vectors (T * R * S).
+        Matrix4 scaleMatrix = scaleMatrix(scale);
+        Matrix4 rotationX = rotationXMatrix((float) Math.toRadians(rotationDeg.getX()));
+        Matrix4 rotationY = rotationYMatrix((float) Math.toRadians(rotationDeg.getY()));
+        Matrix4 rotationZ = rotationZMatrix((float) Math.toRadians(rotationDeg.getZ()));
+        Matrix4 translationMatrix = translationMatrix(translation);
+
+        Matrix4 rotation = rotationZ.mult(rotationY).mult(rotationX);
+        return translationMatrix.mult(rotation).mult(scaleMatrix);
     }
 
-    public static Matrix4f lookAt(Vector3f eye, Vector3f target) {
+    public static Matrix4 lookAt(Vector3f eye, Vector3f target) {
         return lookAt(eye, target, new Vector3f(0F, 1.0F, 0F));
     }
 
-    public static Matrix4f lookAt(Vector3f eye, Vector3f target, Vector3f up) {
-        Vector3f resultX = new Vector3f();
-        Vector3f resultY = new Vector3f();
-        Vector3f resultZ = new Vector3f();
+    public static Matrix4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
+        // Point 8/11: view matrix for column-vector convention.
+        Vector3f forward = eye.sub(target).normalize();
+        Vector3f right = up.vectorProd(forward).normalize();
+        Vector3f upCorrected = forward.vectorProd(right).normalize();
 
-        resultZ.sub(target, eye);
-        resultX.cross(up, resultZ);
-        resultY.cross(resultZ, resultX);
-
-        resultX.normalize();
-        resultY.normalize();
-        resultZ.normalize();
-
-        float[] matrix = new float[]{
-                resultX.x, resultY.x, resultZ.x, 0,
-                resultX.y, resultY.y, resultZ.y, 0,
-                resultX.z, resultY.z, resultZ.z, 0,
-                -resultX.dot(eye), -resultY.dot(eye), -resultZ.dot(eye), 1};
-        return new Matrix4f(matrix);
+        return new Matrix4(
+                right.getX(), right.getY(), right.getZ(), -right.scalarProd(eye),
+                upCorrected.getX(), upCorrected.getY(), upCorrected.getZ(), -upCorrected.scalarProd(eye),
+                forward.getX(), forward.getY(), forward.getZ(), -forward.scalarProd(eye),
+                0, 0, 0, 1
+        );
     }
 
-    public static Matrix4f perspective(
+    public static Matrix4 perspective(
             final float fov,
             final float aspectRatio,
             final float nearPlane,
             final float farPlane) {
-        Matrix4f result = new Matrix4f();
-        float tangentMinusOnDegree = (float) (1.0F / (Math.tan(fov * 0.5F)));
-        result.m00 = tangentMinusOnDegree / aspectRatio;
-        result.m11 = tangentMinusOnDegree;
-        result.m22 = (farPlane + nearPlane) / (farPlane - nearPlane);
-        result.m23 = 1.0F;
-        result.m32 = 2 * (nearPlane * farPlane) / (nearPlane - farPlane);
-        return result;
+        // Point 8: column-vector projection matrix.
+        float f = (float) (1.0F / Math.tan(fov * 0.5F));
+        return new Matrix4(
+                f / aspectRatio, 0, 0, 0,
+                0, f, 0, 0,
+                0, 0, (farPlane + nearPlane) / (nearPlane - farPlane), (2 * farPlane * nearPlane) / (nearPlane - farPlane),
+                0, 0, -1, 0
+        );
     }
 
-    public static Vector3f multiplyMatrix4ByVector3(final Matrix4f matrix, final Vector3f vertex) {
-        final float x = (vertex.x * matrix.m00) + (vertex.y * matrix.m10) + (vertex.z * matrix.m20) + matrix.m30;
-        final float y = (vertex.x * matrix.m01) + (vertex.y * matrix.m11) + (vertex.z * matrix.m21) + matrix.m31;
-        final float z = (vertex.x * matrix.m02) + (vertex.y * matrix.m12) + (vertex.z * matrix.m22) + matrix.m32;
-        final float w = (vertex.x * matrix.m03) + (vertex.y * matrix.m13) + (vertex.z * matrix.m23) + matrix.m33;
-        return new Vector3f(x / w, y / w, z / w);
+    public static Vector3f transformToNdc(Matrix4 matrix, Vector3f vertex) {
+        // Point 8: clip-space to NDC (divide by W).
+        Vector4f clip = matrix.mult(new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F));
+        if (Math.abs(clip.getW()) < 1e-7f) {
+            return new Vector3f();
+        }
+        return new Vector3f(clip.getX() / clip.getW(), clip.getY() / clip.getW(), clip.getZ() / clip.getW());
     }
 
-    public static Point2f vertexToPoint(final Vector3f vertex, final int width, final int height) {
-        return new Point2f(vertex.x * width + width / 2.0F, -vertex.y * height + height / 2.0F);
+    public static Vector2f vertexToPoint(final Vector3f ndcVertex, final int width, final int height) {
+        float x = (ndcVertex.getX() + 1.0F) * 0.5F * width;
+        float y = (1.0F - ndcVertex.getY()) * 0.5F * height;
+        return new Vector2f(x, y);
+    }
+
+    private static Matrix4 translationMatrix(Vector3f translation) {
+        return new Matrix4(
+                1, 0, 0, translation.getX(),
+                0, 1, 0, translation.getY(),
+                0, 0, 1, translation.getZ(),
+                0, 0, 0, 1
+        );
+    }
+
+    private static Matrix4 scaleMatrix(Vector3f scale) {
+        return new Matrix4(
+                scale.getX(), 0, 0, 0,
+                0, scale.getY(), 0, 0,
+                0, 0, scale.getZ(), 0,
+                0, 0, 0, 1
+        );
+    }
+
+    private static Matrix4 rotationXMatrix(float angle) {
+        float cosA = (float) Math.cos(angle);
+        float sinA = (float) Math.sin(angle);
+        return new Matrix4(
+                1, 0, 0, 0,
+                0, cosA, -sinA, 0,
+                0, sinA, cosA, 0,
+                0, 0, 0, 1
+        );
+    }
+
+    private static Matrix4 rotationYMatrix(float angle) {
+        float cosA = (float) Math.cos(angle);
+        float sinA = (float) Math.sin(angle);
+        return new Matrix4(
+                cosA, 0, sinA, 0,
+                0, 1, 0, 0,
+                -sinA, 0, cosA, 0,
+                0, 0, 0, 1
+        );
+    }
+
+    private static Matrix4 rotationZMatrix(float angle) {
+        float cosA = (float) Math.cos(angle);
+        float sinA = (float) Math.sin(angle);
+        return new Matrix4(
+                cosA, -sinA, 0, 0,
+                sinA, cosA, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+        );
     }
 }

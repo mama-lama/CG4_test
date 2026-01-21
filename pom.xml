@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.8.1</junit.version>
-        <javafx.version>21.0.2</javafx.version>  <!-- Обновили версию -->
+        <javafx.version>21.0.2</javafx.version>  <!-- РћР±РЅРѕРІРёР»Рё РІРµСЂСЃРёСЋ -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
@@ -23,20 +23,17 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
 
-        <!-- ПРАВИЛЬНАЯ зависимость vecmath -->
-        <dependency>
-            <groupId>javax.vecmath</groupId>
-            <artifactId>vecmath</artifactId>
-            <version>1.5.2</version>
-        </dependency>
 
+        <!-- РџР РђР’РР›Р¬РќРђРЇ Р·Р°РІРёСЃРёРјРѕСЃС‚СЊ vecmath -->
         <!-- JUnit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -73,7 +70,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Компилятор -->
+            <!-- РљРѕРјРїРёР»СЏС‚РѕСЂ -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -81,32 +78,26 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
-                    <!-- Важно для модулей! -->
-                    <compilerArgs>
-                        <arg>--module-path</arg>
-                        <arg>${project.build.directory}/modules</arg>
-                    </compilerArgs>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <!-- Р’Р°Р¶РЅРѕ РґР»СЏ РјРѕРґСѓР»РµР№! -->
                 </configuration>
             </plugin>
 
-            <!-- JavaFX плагин (ВАЖНО!) -->
+            <!-- JavaFX РїР»Р°РіРёРЅ (Р’РђР–РќРћ!) -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>com.cgvsu.Main</mainClass>
-                    <!-- Добавьте эти строки -->
                     <options>
-                        <option>--module-path</option>
-                        <option>${project.build.directory}/modules</option>
                         <option>--add-modules</option>
                         <option>javafx.controls,javafx.fxml</option>
                     </options>
                 </configuration>
-            </plugin>
+                </plugin>
 
-            <!-- Для сборки JAR -->
+            <!-- Р”Р»СЏ СЃР±РѕСЂРєРё JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -121,7 +112,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Плагин для копирования зависимостей -->
+            <!-- РџР»Р°РіРёРЅ РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ Р·Р°РІРёСЃРёРјРѕСЃС‚РµР№ -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -145,3 +136,5 @@
         </plugins>
     </build>
 </project>
+
+

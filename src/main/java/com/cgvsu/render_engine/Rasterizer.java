@@ -46,6 +46,7 @@ public final class Rasterizer {
             int baseColor,
             TextureSampler textureSampler,
             Vector3f lightPos) {
+        // Point 13/14: triangle fill with Z-buffer, optional texture and lighting.
         float area = edgeFunction(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         if (Math.abs(area) < 1e-6f) {
             return;
@@ -99,6 +100,46 @@ public final class Rasterizer {
                 colorBuffer[index] = applyLighting(sampledColor, intensity);
                 depthBuffer[index] = depth;
             }
+        }
+    }
+
+    public static void rasterizeLine(
+            Vertex v0,
+            Vertex v1,
+            int width,
+            int height,
+            int[] colorBuffer,
+            float[] depthBuffer,
+            int color) {
+        // Point 15: wireframe lines with Z-buffer.
+        float dx = v1.x - v0.x;
+        float dy = v1.y - v0.y;
+        float dz = v1.z - v0.z;
+        int steps = (int) Math.max(Math.abs(dx), Math.abs(dy));
+        if (steps == 0) {
+            return;
+        }
+
+        float stepX = dx / steps;
+        float stepY = dy / steps;
+        float stepZ = dz / steps;
+
+        float x = v0.x;
+        float y = v0.y;
+        float z = v0.z;
+        for (int i = 0; i <= steps; i++) {
+            int px = Math.round(x);
+            int py = Math.round(y);
+            if (px >= 0 && px < width && py >= 0 && py < height) {
+                int index = py * width + px;
+                if (z < depthBuffer[index]) {
+                    depthBuffer[index] = z;
+                    colorBuffer[index] = color;
+                }
+            }
+            x += stepX;
+            y += stepY;
+            z += stepZ;
         }
     }
 

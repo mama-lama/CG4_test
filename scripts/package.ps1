@@ -1,4 +1,5 @@
 $ErrorActionPreference = "Stop"
+# Point 6: build a portable bundle with JavaFX dependencies.
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path | Split-Path -Parent
 Set-Location $projectRoot

@@ -18,6 +18,7 @@ public class ObjReader {
     private static final String OBJ_FACE_TOKEN = "f";
 
     public static Model read(final String fileContent) {
+        // Point 1: robust OBJ parsing with validation and line-aware errors.
         Model result = new Model();
         try (BufferedReader reader = new BufferedReader(new StringReader(fileContent))) {
             String line;
@@ -94,6 +95,7 @@ public class ObjReader {
     }
 
     protected static Polygon parseFace(final List<String> args, int lineInd, Model model) {
+        // Point 1: faces can reference vertices/uvs/normals with flexible formats.
         if (args.size() < 3) {
             throw new ObjReaderException("Face has fewer than 3 vertices.", lineInd);
         }

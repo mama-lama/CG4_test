@@ -17,6 +17,7 @@ public class ObjWriter {
     }
 
     public static String write(Model model) {
+        // Point 1: write OBJ with vertices, uvs, normals, and faces.
         StringBuilder builder = new StringBuilder();
 
         for (Vector3f vertex : model.vertices) {

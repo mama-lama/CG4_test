@@ -1,13 +1,14 @@
 package com.cgvsu.render_engine;
 
+import com.cgvsu.math.matrices.Matrix4;
 import com.cgvsu.math.vectors.Vector2f;
 import com.cgvsu.math.vectors.Vector3f;
+import com.cgvsu.math.vectors.Vector4f;
 import com.cgvsu.model.Model;
+import com.cgvsu.scene.SceneModel;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Point2f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,40 @@ import java.util.List;
 import static com.cgvsu.render_engine.GraphicConveyor.*;
 
 public class RenderEngine {
+    // Point 7: uses custom math matrices/vectors instead of external vecmath.
     private static final int CLEAR_COLOR = 0xFF000000;
     private static final int BASE_COLOR = 0xFFB0B0B0;
+
+    public static void renderModels(
+            final GraphicsContext graphicsContext,
+            final Camera camera,
+            final Model mesh,
+            final int width,
+            final int height,
+            final Image texture) {
+        // Point 15: default render modes (texturing + lighting on).
+        renderModels(graphicsContext, camera, mesh, width, height, texture, defaultSettings());
+    }
+
+    public static void renderModels(
+            final GraphicsContext graphicsContext,
+            final Camera camera,
+            final List<Model> meshes,
+            final int width,
+            final int height,
+            final Image texture) {
+        renderModels(graphicsContext, camera, meshes, width, height, texture, defaultSettings());
+    }
+
+    public static void renderSceneModels(
+            final GraphicsContext graphicsContext,
+            final Camera camera,
+            final List<SceneModel> sceneModels,
+            final int width,
+            final int height,
+            final Image texture) {
+        renderSceneModels(graphicsContext, camera, sceneModels, width, height, texture, defaultSettings());
+    }
 
     public static void render(
             final GraphicsContext graphicsContext,
@@ -24,44 +57,93 @@ public class RenderEngine {
             final Model mesh,
             final int width,
             final int height) {
-        render(graphicsContext, camera, mesh, width, height, null);
+        renderModels(graphicsContext, camera, mesh, width, height, null);
     }
 
-    public static void render(
+    public static void renderModels(
             final GraphicsContext graphicsContext,
             final Camera camera,
             final Model mesh,
             final int width,
             final int height,
-            final Image texture) {
-        render(graphicsContext, camera, List.of(mesh), width, height, texture);
+            final Image texture,
+            final RenderSettings settings) {
+        renderModels(graphicsContext, camera, List.of(mesh), width, height, texture, settings);
     }
 
-    public static void render(
+    public static void renderModels(
             final GraphicsContext graphicsContext,
             final Camera camera,
             final List<Model> meshes,
             final int width,
             final int height,
-            final Image texture) {
-        Matrix4f modelMatrix = rotateScaleTranslate();
-        Matrix4f viewMatrix = camera.getViewMatrix();
-        Matrix4f projectionMatrix = camera.getProjectionMatrix();
+            final Image texture,
+            final RenderSettings settings) {
+        Matrix4 viewMatrix = camera.getViewMatrix();
+        Matrix4 projectionMatrix = camera.getProjectionMatrix();
+        int[] colorBuffer = new int[width * height];
+        float[] depthBuffer = new float[width * height];
+        Rasterizer.clearBuffers(width, height, colorBuffer, depthBuffer, CLEAR_COLOR);
 
-        Matrix4f modelViewProjectionMatrix = new Matrix4f(modelMatrix);
-        modelViewProjectionMatrix.mul(viewMatrix);
-        modelViewProjectionMatrix.mul(projectionMatrix);
+        TextureSampler textureSampler = (settings != null && settings.isUseTexture() && texture != null)
+                ? new ImageTextureSampler(texture)
+                : null;
+        Vector3f cameraPos = camera.getPosition();
+        Vector3f lightPos = (settings != null && settings.isUseLighting())
+                ? new Vector3f(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ())
+                : null;
+        int baseColor = settings != null ? settings.getBaseColor() : BASE_COLOR;
+
+        for (Model mesh : meshes) {
+            Matrix4 modelMatrix = rotateScaleTranslate(new Vector3f(), new Vector3f(), new Vector3f(1, 1, 1));
+            Matrix4 modelViewProjectionMatrix = projectionMatrix.mult(viewMatrix).mult(modelMatrix);
+            renderSingleModel(mesh, modelMatrix, modelViewProjectionMatrix, width, height, colorBuffer, depthBuffer, textureSampler, lightPos, baseColor, settings);
+        }
+
+        graphicsContext.getPixelWriter().setPixels(
+                0,
+                0,
+                width,
+                height,
+                PixelFormat.getIntArgbInstance(),
+                colorBuffer,
+                0,
+                width);
+    }
+
+    public static void renderSceneModels(
+            final GraphicsContext graphicsContext,
+            final Camera camera,
+            final List<SceneModel> sceneModels,
+            final int width,
+            final int height,
+            final Image texture,
+            final RenderSettings settings) {
+        // Point 2/16: render full scene with multiple models and cameras.
+        Matrix4 viewMatrix = camera.getViewMatrix();
+        Matrix4 projectionMatrix = camera.getProjectionMatrix();
 
         int[] colorBuffer = new int[width * height];
         float[] depthBuffer = new float[width * height];
         Rasterizer.clearBuffers(width, height, colorBuffer, depthBuffer, CLEAR_COLOR);
 
-        TextureSampler textureSampler = texture == null ? null : new ImageTextureSampler(texture);
-        javax.vecmath.Vector3f cameraPos = camera.getPosition();
-        Vector3f lightPos = new Vector3f(cameraPos.x, cameraPos.y, cameraPos.z);
+        TextureSampler textureSampler = (settings != null && settings.isUseTexture() && texture != null)
+                ? new ImageTextureSampler(texture)
+                : null;
+        Vector3f cameraPos = camera.getPosition();
+        Vector3f lightPos = (settings != null && settings.isUseLighting())
+                ? new Vector3f(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ())
+                : null;
+        int baseColor = settings != null ? settings.getBaseColor() : BASE_COLOR;
 
-        for (Model mesh : meshes) {
-            renderSingleModel(mesh, modelViewProjectionMatrix, width, height, colorBuffer, depthBuffer, textureSampler, lightPos);
+        for (SceneModel sceneModel : sceneModels) {
+            // Point 9/10: apply per-model transforms.
+            Matrix4 modelMatrix = rotateScaleTranslate(
+                    sceneModel.getTranslation(),
+                    sceneModel.getRotation(),
+                    sceneModel.getScale());
+            Matrix4 modelViewProjectionMatrix = projectionMatrix.mult(viewMatrix).mult(modelMatrix);
+            renderSingleModel(sceneModel.getModel(), modelMatrix, modelViewProjectionMatrix, width, height, colorBuffer, depthBuffer, textureSampler, lightPos, baseColor, settings);
         }
 
         graphicsContext.getPixelWriter().setPixels(
@@ -77,13 +159,16 @@ public class RenderEngine {
 
     private static void renderSingleModel(
             Model mesh,
-            Matrix4f modelViewProjectionMatrix,
+            Matrix4 modelMatrix,
+            Matrix4 modelViewProjectionMatrix,
             int width,
             int height,
             int[] colorBuffer,
             float[] depthBuffer,
             TextureSampler textureSampler,
-            Vector3f lightPos) {
+            Vector3f lightPos,
+            int baseColor,
+            RenderSettings settings) {
         final int nPolygons = mesh.polygons.size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
             ArrayList<Integer> vertexIndices = mesh.polygons.get(polygonInd).getVertexIndices();
@@ -100,12 +185,10 @@ public class RenderEngine {
             for (int i = 0; i < 3; i++) {
                 int vertexIndex = vertexIndices.get(i);
                 Vector3f vertex = mesh.vertices.get(vertexIndex);
-                javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(
-                        vertex.getX(),
-                        vertex.getY(),
-                        vertex.getZ());
-                javax.vecmath.Vector3f projected = multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath);
-                Point2f resultPoint = vertexToPoint(projected, width, height);
+                Vector3f ndc = transformToNdc(modelViewProjectionMatrix, vertex);
+                Vector2f screenPoint = vertexToPoint(ndc, width, height);
+                Vector4f world4 = modelMatrix.mult(new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1.0F));
+                Vector3f worldPos = new Vector3f(world4.getX(), world4.getY(), world4.getZ());
 
                 Vector2f texCoord = null;
                 if (hasTexture) {
@@ -116,14 +199,16 @@ public class RenderEngine {
                 Vector3f normal = null;
                 if (hasNormals) {
                     int normalIndex = normalIndices.get(i);
-                    normal = mesh.normals.get(normalIndex);
+                    Vector3f normalLocal = mesh.normals.get(normalIndex);
+                    Vector4f normalWorld = modelMatrix.mult(new Vector4f(normalLocal.getX(), normalLocal.getY(), normalLocal.getZ(), 0.0F));
+                    normal = new Vector3f(normalWorld.getX(), normalWorld.getY(), normalWorld.getZ()).normalize();
                 }
 
                 vertices[i] = new Rasterizer.Vertex(
-                        resultPoint.x,
-                        resultPoint.y,
-                        projected.z,
-                        vertex,
+                        screenPoint.getX(),
+                        screenPoint.getY(),
+                        ndc.getZ(),
+                        worldPos,
                         normal,
                         texCoord);
             }
@@ -136,9 +221,20 @@ public class RenderEngine {
                     height,
                     colorBuffer,
                     depthBuffer,
-                    BASE_COLOR,
+                    baseColor,
                     textureSampler,
                     lightPos);
+
+            if (settings != null && settings.isDrawWireframe()) {
+                // Point 15: optional polygon wireframe overlay.
+                Rasterizer.rasterizeLine(vertices[0], vertices[1], width, height, colorBuffer, depthBuffer, 0xFFFFFFFF);
+                Rasterizer.rasterizeLine(vertices[1], vertices[2], width, height, colorBuffer, depthBuffer, 0xFFFFFFFF);
+                Rasterizer.rasterizeLine(vertices[2], vertices[0], width, height, colorBuffer, depthBuffer, 0xFFFFFFFF);
+            }
         }
+    }
+
+    private static RenderSettings defaultSettings() {
+        return new RenderSettings(false, true, true, BASE_COLOR);
     }
 }

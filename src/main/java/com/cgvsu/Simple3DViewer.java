@@ -13,14 +13,17 @@ public class Simple3DViewer extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        // Point 4: bootstrap UI and theme.
         Parent viewport = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("fxml/gui.fxml")));
 
         Scene scene = new Scene(viewport);
         scene.getStylesheets().add("/com/cgvsu/styles/app.css");
-        stage.setMinWidth(1600);
-        stage.setMinHeight(900);
+        stage.setWidth(1200);
+        stage.setHeight(750);
+        stage.setMinWidth(1100);
+        stage.setMinHeight(700);
 
-        stage.setTitle("Simple3DViewer");
+        stage.setTitle("Просмотрщик 3D");
         stage.setScene(scene);
         stage.show();
     }

@@ -44,4 +44,20 @@ class ModelOperationsTest {
         Assertions.assertEquals(1, model.polygons.size());
         Assertions.assertEquals(List.of(0, 1, 2), model.polygons.get(0).getVertexIndices());
     }
+
+    @Test
+    void testCreateTransformedCopy() {
+        Model model = new Model();
+        model.vertices.add(new Vector3f(1, 0, 0));
+
+        com.cgvsu.math.matrices.Matrix4 matrix = new com.cgvsu.math.matrices.Matrix4(
+                1, 0, 0, 5,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+        );
+
+        Model copy = ModelOperations.createTransformedCopy(model, matrix);
+        Assertions.assertEquals(6.0f, copy.vertices.get(0).getX(), 1e-4);
+    }
 }

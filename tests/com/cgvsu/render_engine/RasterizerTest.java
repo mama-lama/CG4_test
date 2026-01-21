@@ -50,4 +50,24 @@ public class RasterizerTest {
         int index = 2 + 2 * width;
         assertEquals(0xFF0000FF, colorBuffer[index]);
     }
+
+    @Test
+    public void lineRasterizationUsesDepth() {
+        int width = 5;
+        int height = 5;
+        int[] colorBuffer = new int[width * height];
+        float[] depthBuffer = new float[width * height];
+        Rasterizer.clearBuffers(width, height, colorBuffer, depthBuffer, 0xFF000000);
+
+        Rasterizer.Vertex v0 = new Rasterizer.Vertex(0, 0, 0.8f, new Vector3f(), null, null);
+        Rasterizer.Vertex v1 = new Rasterizer.Vertex(4, 4, 0.8f, new Vector3f(), null, null);
+        Rasterizer.rasterizeLine(v0, v1, width, height, colorBuffer, depthBuffer, 0xFFFF0000);
+
+        Rasterizer.Vertex v0Near = new Rasterizer.Vertex(0, 0, 0.2f, new Vector3f(), null, null);
+        Rasterizer.Vertex v1Near = new Rasterizer.Vertex(4, 4, 0.2f, new Vector3f(), null, null);
+        Rasterizer.rasterizeLine(v0Near, v1Near, width, height, colorBuffer, depthBuffer, 0xFF00FF00);
+
+        int index = 2 + 2 * width;
+        assertEquals(0xFF00FF00, colorBuffer[index]);
+    }
 }
