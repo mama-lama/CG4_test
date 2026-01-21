@@ -16,17 +16,23 @@ public class Polygon {
     }
 
     public void setVertexIndices(ArrayList<Integer> vertexIndices) {
-        assert vertexIndices.size() >= 3;
+        if (vertexIndices.size() < 3) {
+            throw new IllegalArgumentException("Polygon must have at least 3 vertex indices.");
+        }
         this.vertexIndices = vertexIndices;
     }
 
     public void setTextureVertexIndices(ArrayList<Integer> textureVertexIndices) {
-        assert textureVertexIndices.size() >= 3;
+        if (!textureVertexIndices.isEmpty() && textureVertexIndices.size() < 3) {
+            throw new IllegalArgumentException("Texture indices list must be empty or have at least 3 items.");
+        }
         this.textureVertexIndices = textureVertexIndices;
     }
 
     public void setNormalIndices(ArrayList<Integer> normalIndices) {
-        assert normalIndices.size() >= 3;
+        if (!normalIndices.isEmpty() && normalIndices.size() < 3) {
+            throw new IllegalArgumentException("Normal indices list must be empty or have at least 3 items.");
+        }
         this.normalIndices = normalIndices;
     }
 

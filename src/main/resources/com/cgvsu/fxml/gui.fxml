@@ -1,55 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="anchorPane" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cgvsu.GuiController">
-    <MenuBar>
-        <Menu mnemonicParsing="false" text="File">
-            <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Load Model">
-            <accelerator>
-                <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="F"/>
-            </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#onOpenTextureMenuItemClick" text="Load Texture"/>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Camera Options">
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraForward" text="Forward">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="UP"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraBackward" text="Backward">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="DOWN"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraLeft" text="Left">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="LEFT"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraRight" text="Right">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="RIGHT"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraUp" text="Up">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="W"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraDown" text="Down">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="S"/>
-                </accelerator>
-            </MenuItem>
-        </Menu>
-    </MenuBar>
-
-    <Canvas fx:id="canvas" width="1600" height="870" AnchorPane.topAnchor="30.0"/>
-</AnchorPane>
+<BorderPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml" fx:controller="com.cgvsu.GuiController" prefWidth="1600.0" prefHeight="900.0">
+        <top>
+            <MenuBar fx:id="menuBar">
+                <Menu mnemonicParsing="false" text="File">
+                    <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Load Model">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="DOWN" meta="UP" shift="UP" shortcut="UP" code="F"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#onSaveModelMenuItemClick" text="Save Model As..."/>
+                    <MenuItem mnemonicParsing="false" onAction="#onOpenTextureMenuItemClick" text="Load Texture"/>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Camera">
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraForward" text="Forward">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraBackward" text="Backward">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="DOWN"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraLeft" text="Left">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="LEFT"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraRight" text="Right">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="RIGHT"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraUp" text="Up">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="W"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraDown" text="Down">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" control="UP" meta="UP" shift="UP" shortcut="UP" code="S"/>
+                        </accelerator>
+                    </MenuItem>
+                </Menu>
+                <Menu mnemonicParsing="false" text="View">
+                    <CheckMenuItem fx:id="darkThemeMenuItem" mnemonicParsing="false" onAction="#onToggleTheme" text="Dark Theme"/>
+                </Menu>
+            </MenuBar>
+        </top>
+        <left>
+            <VBox fx:id="sidePanel" prefWidth="280.0" spacing="10.0" styleClass="side-panel">
+                <Label text="Scene Models" styleClass="panel-title"/>
+                <ListView fx:id="modelListView" VBox.vgrow="ALWAYS"/>
+                <HBox spacing="8.0">
+                    <Button fx:id="removeModelButton" mnemonicParsing="false" onAction="#onRemoveModelClick" text="Remove"/>
+                </HBox>
+                <Label fx:id="selectionStatusLabel" text="Selected models: 0" styleClass="muted-text"/>
+                <Separator/>
+                <Label text="Mesh Editing" styleClass="panel-title"/>
+                <GridPane hgap="6.0" vgap="6.0">
+                    <Label text="Vertex index (0-based):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="vertexIndexField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    <Button mnemonicParsing="false" onAction="#onDeleteVertexClick" text="Delete Vertex" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="Polygon index (0-based):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="polygonIndexField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <Button mnemonicParsing="false" onAction="#onDeletePolygonClick" text="Delete Polygon" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                </GridPane>
+            </VBox>
+        </left>
+        <center>
+            <AnchorPane fx:id="canvasPane">
+                <Canvas fx:id="canvas" width="1280.0" height="720.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"/>
+            </AnchorPane>
+        </center>
+</BorderPane>
