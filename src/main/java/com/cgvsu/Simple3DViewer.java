@@ -22,8 +22,9 @@ public class Simple3DViewer extends Application {
         stage.setHeight(750);
         stage.setMinWidth(1100);
         stage.setMinHeight(700);
+        stage.setMaximized(true);
 
-        stage.setTitle("Просмотрщик 3D");
+        stage.setTitle("\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440\u0449\u0438\u043a 3D");
         stage.setScene(scene);
         stage.show();
     }

@@ -1,41 +1,80 @@
 .root {
-    -fx-font-family: "Trebuchet MS";
-    -fx-background-color: linear-gradient(to bottom, #f6f2ea, #e3dccf);
+    -fx-font-family: "Segoe UI";
+    -cg-bg: #f3f1ec;
+    -cg-bg-2: #e7e2d9;
+    -cg-panel: #f7f5f0;
+    -cg-panel-2: #ece6dd;
+    -cg-panel-border: #c9c1b4;
+    -cg-text: #1f1c18;
+    -cg-muted: #6f6a60;
+    -cg-accent: #c77443;
+    -cg-button: #d9d1c3;
+    -cg-button-hover: #cfc6b6;
+    -fx-background-color: linear-gradient(to bottom right, -cg-bg, -cg-bg-2);
 }
 
 .menu-bar {
     -fx-background-color: #e8e2d6;
-    -fx-padding: 4 6 4 6;
+    -fx-border-color: #cbc3b5;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 6 10 6 10;
 }
 
 .menu-bar .label {
-    -fx-text-fill: #1d1a15;
+    -fx-text-fill: -cg-text;
 }
 
 .menu-item .label {
-    -fx-text-fill: #1d1a15;
+    -fx-text-fill: -cg-text;
+}
+
+.side-panel-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: -cg-panel-border;
+    -fx-border-width: 0 0 0 1;
+}
+
+.side-panel-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.side-panel-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.side-panel-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #cfc6b8;
+    -fx-background-radius: 6;
 }
 
 .side-panel {
-    -fx-padding: 12;
-    -fx-background-color: #f0ede5;
-    -fx-border-color: #c2b9a6;
-    -fx-border-width: 0 1 0 0;
+    -fx-padding: 14;
+    -fx-background-color: linear-gradient(to bottom, -cg-panel, -cg-panel-2);
 }
 
 .panel-title {
     -fx-font-size: 15px;
-    -fx-text-fill: #2a2a2a;
+    -fx-text-fill: -cg-text;
     -fx-font-weight: bold;
 }
 
 .muted-text {
-    -fx-text-fill: #6b6558;
+    -fx-text-fill: -cg-muted;
 }
 
 .list-view {
-    -fx-background-color: #faf7f1;
-    -fx-border-color: #d1c7b5;
+    -fx-background-color: #fbf9f4;
+    -fx-border-color: -cg-panel-border;
+}
+
+.list-view .cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -cg-text;
+}
+
+.list-view .cell:filled:selected {
+    -fx-background-color: #e2dacb;
+    -fx-text-fill: -cg-text;
 }
 
 .list-view .scroll-bar:horizontal {
@@ -44,30 +83,60 @@
 }
 
 .button {
-    -fx-background-color: #d2cabc;
-    -fx-text-fill: #1d1a15;
-    -fx-background-radius: 6;
+    -fx-background-color: linear-gradient(to bottom, -cg-button, #cfc7b9);
+    -fx-text-fill: -cg-text;
+    -fx-background-radius: 8;
+    -fx-border-color: #bfb6a7;
+    -fx-border-radius: 8;
     -fx-padding: 6 12 6 12;
 }
 
 .button:hover {
-    -fx-background-color: #c5bcad;
+    -fx-background-color: linear-gradient(to bottom, -cg-button-hover, #c7beaf);
+}
+
+.toggle-button {
+    -fx-background-color: #f0e9dd;
+    -fx-text-fill: -cg-text;
+    -fx-background-radius: 8;
+    -fx-border-color: #c4bcaf;
+    -fx-border-radius: 8;
+    -fx-padding: 6 12 6 12;
+}
+
+.toggle-button:selected {
+    -fx-background-color: -cg-accent;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #a9653b;
 }
 
 .text-field {
     -fx-background-color: #ffffff;
     -fx-border-color: #c9c0ae;
-    -fx-border-radius: 4;
+    -fx-text-fill: -cg-text;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+.color-picker {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #c9c0ae;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
 }
 
 .color-picker .label {
-    -fx-text-fill: #1d1a15;
+    -fx-text-fill: -cg-text;
 }
 
 .label {
-    -fx-text-fill: #1d1a15;
+    -fx-text-fill: -cg-text;
+}
+
+.separator {
+    -fx-background-color: #d5cdc1;
 }
 
 .dialog-pane .label {
-    -fx-text-fill: #1d1a15;
+    -fx-text-fill: -cg-text;
 }

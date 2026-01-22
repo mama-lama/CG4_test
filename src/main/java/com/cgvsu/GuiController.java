@@ -13,6 +13,7 @@ import com.cgvsu.render_engine.RenderSettings;
 import com.cgvsu.scene.CameraGizmoFactory;
 import com.cgvsu.scene.CameraManager;
 import com.cgvsu.scene.SceneCamera;
+import com.cgvsu.scene.SceneModel;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -25,9 +26,12 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -53,7 +57,7 @@ public class GuiController {
     private Canvas canvas;
 
     @FXML
-    private ListView<String> modelListView;
+    private ListView<SceneModel> modelListView;
 
     @FXML
     private ListView<String> cameraListView;
@@ -121,9 +125,20 @@ public class GuiController {
     @FXML
     private ColorPicker baseColorPicker;
 
-    private Model mesh = null;
+    @FXML
+    private ToggleButton modelsToggle;
+
+    @FXML
+    private ToggleButton camerasToggle;
+
+    @FXML
+    private VBox modelSection;
+
+    @FXML
+    private VBox cameraSection;
+
+    private final List<SceneModel> sceneModels = new ArrayList<>();
     private Image texture = null;
-    private String meshName = null;
 
     private final CameraManager cameraManager = new CameraManager();
     private final RenderSettings renderSettings = new RenderSettings(false, true, true, 0xFFB0B0B0);
@@ -149,6 +164,10 @@ public class GuiController {
         setupDefaultCamera();
         setupMouseControls();
         setupKeyboardControls();
+        setupPanels();
+        if (autoPostprocessMenuItem != null) {
+            autoPostprocessMenuItem.setSelected(true);
+        }
         syncUiState();
 
         timeline = new Timeline();
@@ -159,11 +178,15 @@ public class GuiController {
             double height = canvas.getHeight();
 
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
-            getActiveCamera().setAspectRatio((float) (width / height));
+            Camera activeCamera = getActiveCamera();
+            if (activeCamera == null) {
+                return;
+            }
+            activeCamera.setAspectRatio((float) (width / height));
 
             List<Model> renderModels = new ArrayList<>();
-            if (mesh != null) {
-                renderModels.add(mesh);
+            for (SceneModel sceneModel : sceneModels) {
+                renderModels.add(sceneModel.getModel());
             }
             if (showCameraGizmos) {
                 renderModels.addAll(buildCameraGizmos());
@@ -171,7 +194,7 @@ public class GuiController {
             if (!renderModels.isEmpty()) {
                 RenderEngine.renderModels(
                         canvas.getGraphicsContext2D(),
-                        getActiveCamera(),
+                        activeCamera,
                         renderModels,
                         (int) width,
                         (int) height,
@@ -199,10 +222,16 @@ public class GuiController {
 
         try {
             String fileContent = Files.readString(fileName);
-            mesh = ObjReader.read(fileContent);
-            meshName = file.getName();
+            Model loadedModel = ObjReader.read(fileContent);
+            SceneModel sceneModel = new SceneModel(loadedModel, file.getName(), fileName);
+            sceneModels.add(sceneModel);
+            if (modelListView != null) {
+                modelListView.getSelectionModel().select(sceneModel);
+            }
             if (autoPostprocessMenuItem == null || autoPostprocessMenuItem.isSelected()) {
                 postprocessModel();
+            } else {
+                focusSceneOnModels();
             }
             syncModelList();
         } catch (IOException exception) {
@@ -212,7 +241,8 @@ public class GuiController {
 
     @FXML
     private void onSaveModelMenuItemClick() {
-        if (mesh == null) {
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
             return;
         }
         FileChooser fileChooser = new FileChooser();
@@ -222,9 +252,9 @@ public class GuiController {
         if (file == null) {
             return;
         }
-        Model toSave = mesh;
+        Model toSave = selected.getModel();
         if (applyTransformsMenuItem != null && applyTransformsMenuItem.isSelected()) {
-            toSave = ModelOperations.createTransformedCopy(mesh, new com.cgvsu.math.matrices.Matrix4().identity());
+            toSave = ModelOperations.createTransformedCopy(toSave, new com.cgvsu.math.matrices.Matrix4().identity());
         }
         try {
             ObjWriter.write(toSave, file.toPath());
@@ -264,6 +294,13 @@ public class GuiController {
     }
 
     @FXML
+    private void onPanelToggle() {
+        boolean showModels = modelsToggle != null && modelsToggle.isSelected();
+        setSectionVisible(modelSection, showModels);
+        setSectionVisible(cameraSection, !showModels);
+    }
+
+    @FXML
     private void onRenderSettingsChanged() {
         if (wireframeMenuItem != null) {
             renderSettings.setDrawWireframe(wireframeMenuItem.isSelected());
@@ -289,66 +326,75 @@ public class GuiController {
 
     @FXML
     private void onRemoveModelClick() {
-        mesh = null;
-        meshName = null;
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
+            return;
+        }
+        sceneModels.remove(selected);
         syncModelList();
+        focusSceneOnModels();
     }
 
     @FXML
     private void onDeleteVertexClick() {
-        if (mesh == null) {
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
             return;
         }
         int index = parseInt(vertexIndexField);
         if (index < 0) {
             return;
         }
-        ModelOperations.deleteVertex(mesh, index);
+        ModelOperations.deleteVertex(selected.getModel(), index);
     }
 
     @FXML
     private void onDeletePolygonClick() {
-        if (mesh == null) {
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
             return;
         }
         int index = parseInt(polygonIndexField);
         if (index < 0) {
             return;
         }
-        ModelOperations.deletePolygon(mesh, index);
+        ModelOperations.deletePolygon(selected.getModel(), index);
     }
 
     @FXML
     private void onApplyTranslationClick() {
-        if (mesh == null) {
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
             return;
         }
         float x = parseFloat(translateXField, 0.0f);
         float y = parseFloat(translateYField, 0.0f);
         float z = parseFloat(translateZField, 0.0f);
-        AffineTransformations.translate(mesh.vertices, x, y, z);
+        AffineTransformations.translate(selected.getModel().vertices, x, y, z);
     }
 
     @FXML
     private void onApplyRotationClick() {
-        if (mesh == null) {
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
             return;
         }
         float x = (float) Math.toRadians(parseFloat(rotateXField, 0.0f));
         float y = (float) Math.toRadians(parseFloat(rotateYField, 0.0f));
         float z = (float) Math.toRadians(parseFloat(rotateZField, 0.0f));
-        AffineTransformations.rotate(mesh, x, y, z);
+        AffineTransformations.rotate(selected.getModel(), x, y, z);
     }
 
     @FXML
     private void onApplyScaleClick() {
-        if (mesh == null) {
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
             return;
         }
         float x = parseFloat(scaleXField, 1.0f);
         float y = parseFloat(scaleYField, 1.0f);
         float z = parseFloat(scaleZField, 1.0f);
-        AffineTransformations.scale(mesh.vertices, x, y, z);
+        AffineTransformations.scale(selected.getModel().vertices, x, y, z);
     }
 
     @FXML
@@ -486,12 +532,14 @@ public class GuiController {
     }
 
     private void postprocessModel() {
-        if (mesh == null) {
+        SceneModel selected = getSelectedSceneModel();
+        if (selected == null) {
             return;
         }
-        ModelTriangulator.triangulate(mesh);
-        NormalsCalculator.recalculateNormals(mesh);
-        fitModelToView();
+        Model model = selected.getModel();
+        ModelTriangulator.triangulate(model);
+        NormalsCalculator.recalculateNormals(model);
+        focusSceneOnModels();
     }
 
     private Camera getActiveCamera() {
@@ -506,7 +554,7 @@ public class GuiController {
                 1.0F,
                 1,
                 0.01F,
-                100);
+                1000);
         SceneCamera defaultCamera = new SceneCamera(camera, "Camera 1", CameraGizmoFactory.createGizmo());
         cameraManager.add(defaultCamera);
         syncCameraList();
@@ -563,8 +611,39 @@ public class GuiController {
         orbitDistance = delta.length();
     }
 
-    private void fitModelToView() {
-        if (mesh == null || mesh.vertices.isEmpty()) {
+    private void setupPanels() {
+        if (modelsToggle == null || camerasToggle == null) {
+            return;
+        }
+        ToggleGroup group = new ToggleGroup();
+        modelsToggle.setToggleGroup(group);
+        camerasToggle.setToggleGroup(group);
+        modelsToggle.setSelected(true);
+        setSectionVisible(modelSection, true);
+        setSectionVisible(cameraSection, false);
+    }
+
+    private static void setSectionVisible(VBox section, boolean visible) {
+        if (section == null) {
+            return;
+        }
+        section.setVisible(visible);
+        section.setManaged(visible);
+    }
+
+    private SceneModel getSelectedSceneModel() {
+        if (sceneModels.isEmpty()) {
+            return null;
+        }
+        if (modelListView == null) {
+            return sceneModels.get(sceneModels.size() - 1);
+        }
+        SceneModel selected = modelListView.getSelectionModel().getSelectedItem();
+        return selected == null ? sceneModels.get(sceneModels.size() - 1) : selected;
+    }
+
+    private void focusSceneOnModels() {
+        if (sceneModels.isEmpty()) {
             return;
         }
 
@@ -575,47 +654,46 @@ public class GuiController {
         float maxY = Float.NEGATIVE_INFINITY;
         float maxZ = Float.NEGATIVE_INFINITY;
 
-        for (Vector3f vertex : mesh.vertices) {
-            minX = Math.min(minX, vertex.getX());
-            minY = Math.min(minY, vertex.getY());
-            minZ = Math.min(minZ, vertex.getZ());
-            maxX = Math.max(maxX, vertex.getX());
-            maxY = Math.max(maxY, vertex.getY());
-            maxZ = Math.max(maxZ, vertex.getZ());
+        for (SceneModel sceneModel : sceneModels) {
+            for (Vector3f vertex : sceneModel.getModel().vertices) {
+                minX = Math.min(minX, vertex.getX());
+                minY = Math.min(minY, vertex.getY());
+                minZ = Math.min(minZ, vertex.getZ());
+                maxX = Math.max(maxX, vertex.getX());
+                maxY = Math.max(maxY, vertex.getY());
+                maxZ = Math.max(maxZ, vertex.getZ());
+            }
         }
 
-        float centerX = (minX + maxX) * 0.5f;
-        float centerY = (minY + maxY) * 0.5f;
-        float centerZ = (minZ + maxZ) * 0.5f;
-
-        float maxLen = 0.0f;
-        for (Vector3f vertex : mesh.vertices) {
-            float x = vertex.getX() - centerX;
-            float y = vertex.getY() - centerY;
-            float z = vertex.getZ() - centerZ;
-            vertex.set(x, y, z);
-            maxLen = Math.max(maxLen, vertex.length());
-        }
-
-        if (maxLen < 1e-5f) {
+        if (!Float.isFinite(minX)) {
             return;
         }
 
-        float desiredRadius = 30.0f;
-        float scale = maxLen > desiredRadius ? desiredRadius / maxLen : 1.0f;
-        if (scale != 1.0f) {
-            for (Vector3f vertex : mesh.vertices) {
-                vertex.set(vertex.getX() * scale, vertex.getY() * scale, vertex.getZ() * scale);
+        Vector3f center = new Vector3f(
+                (minX + maxX) * 0.5f,
+                (minY + maxY) * 0.5f,
+                (minZ + maxZ) * 0.5f);
+
+        float radius = 0.0f;
+        for (SceneModel sceneModel : sceneModels) {
+            for (Vector3f vertex : sceneModel.getModel().vertices) {
+                float dx = vertex.getX() - center.getX();
+                float dy = vertex.getY() - center.getY();
+                float dz = vertex.getZ() - center.getZ();
+                float len = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+                radius = Math.max(radius, len);
             }
-            maxLen *= scale;
         }
 
         Camera activeCamera = getActiveCamera();
         if (activeCamera != null) {
-            activeCamera.setTarget(new Vector3f(0, 0, 0));
-            float distance = Math.max(3.0f, maxLen * 3.0f);
-            activeCamera.setPosition(new Vector3f(0, 0, distance));
-            syncOrbitDistance();
+            activeCamera.setTarget(center);
+            float distance = Math.max(3.0f, radius * 3.0f);
+            activeCamera.setFarPlane(Math.max(100.0f, distance * 4.0f));
+            orbitYaw = 0.0f;
+            orbitPitch = 0.0f;
+            orbitDistance = distance;
+            updateOrbitCamera();
         }
     }
 
@@ -642,12 +720,14 @@ public class GuiController {
     private void syncModelList() {
         if (modelListView != null) {
             modelListView.getItems().clear();
-            if (mesh != null) {
-                modelListView.getItems().add(meshName == null ? "Model" : meshName);
+            modelListView.getItems().addAll(sceneModels);
+            SceneModel selected = getSelectedSceneModel();
+            if (selected != null) {
+                modelListView.getSelectionModel().select(selected);
             }
         }
         if (selectionStatusLabel != null) {
-            selectionStatusLabel.setText("Выбрано моделей: " + (mesh == null ? 0 : 1));
+            selectionStatusLabel.setText("\u0412\u044b\u0431\u0440\u0430\u043d\u043e \u043c\u043e\u0434\u0435\u043b\u0435\u0439: " + sceneModels.size());
         }
     }
 
@@ -665,7 +745,7 @@ public class GuiController {
         if (activeCameraLabel != null) {
             SceneCamera active = cameraManager.getActive();
             String name = active == null ? "None" : active.getName();
-            activeCameraLabel.setText("Активная камера: " + name);
+            activeCameraLabel.setText("\u0410\u043a\u0442\u0438\u0432\u043d\u0430\u044f \u043a\u0430\u043c\u0435\u0440\u0430: " + name);
         }
     }
 
