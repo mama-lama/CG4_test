@@ -54,6 +54,7 @@ public class RenderEngine {
             final int height,
             final Image texture,
             final RenderSettings settings) {
+        // Ксюня: единая точка рендера с режимами (пункт 15).
         if (meshes == null || meshes.isEmpty()) {
             return;
         }
@@ -64,11 +65,13 @@ public class RenderEngine {
         float[] depthBuffer = new float[width * height];
         Rasterizer.clearBuffers(width, height, colorBuffer, depthBuffer, CLEAR_COLOR);
 
+        // Ксюня: режимы — сетка/текстура/освещение и базовый цвет (пункт 15).
         RenderSettings resolved = settings == null ? defaultSettings() : settings;
         TextureSampler textureSampler = (resolved.isUseTexture() && texture != null)
                 ? new ImageTextureSampler(texture)
                 : null;
         Vector3f cameraPos = camera.getPosition();
+        // Ксюня: источник света привязан к активной камере (пункт 14).
         Vector3f lightPos = resolved.isUseLighting()
                 ? new Vector3f(cameraPos.getX(), cameraPos.getY(), cameraPos.getZ())
                 : null;
@@ -115,6 +118,7 @@ public class RenderEngine {
             Vector3f lightPos,
             int baseColor,
             boolean drawWireframe) {
+        // Ксюня: треугольники + Z-буфер + опциональная сетка (пункты 13 и 15).
         final int nPolygons = mesh.polygons.size();
         for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
             List<Integer> vertexIndices = mesh.polygons.get(polygonInd).getVertexIndices();
@@ -174,6 +178,7 @@ public class RenderEngine {
                     lightPos);
 
             if (drawWireframe) {
+                // Ксюня: поверх заливаемой модели рисуем каркас (пункт 15).
                 Rasterizer.rasterizeLine(vertices[0], vertices[1], width, height, colorBuffer, depthBuffer, 0xFFFFFFFF);
                 Rasterizer.rasterizeLine(vertices[1], vertices[2], width, height, colorBuffer, depthBuffer, 0xFFFFFFFF);
                 Rasterizer.rasterizeLine(vertices[2], vertices[0], width, height, colorBuffer, depthBuffer, 0xFFFFFFFF);

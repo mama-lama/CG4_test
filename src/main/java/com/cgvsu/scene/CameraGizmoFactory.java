@@ -11,6 +11,7 @@ public final class CameraGizmoFactory {
     }
 
     public static Model createGizmo() {
+        // Ксюня: гизмос камеры — простая модель для отображения на сцене (пункт 16).
         Model model = new Model();
         model.vertices.add(new Vector3f(0, 0, 0));
         model.vertices.add(new Vector3f(-0.5f, -0.3f, 1.0f));

@@ -78,4 +78,33 @@ public class ModelOperations {
 
         return copy;
     }
+
+    public static void copyInto(Model source, Model target) {
+        target.vertices = new ArrayList<>();
+        for (com.cgvsu.math.vectors.Vector3f vertex : source.vertices) {
+            target.vertices.add(new com.cgvsu.math.vectors.Vector3f(
+                    vertex.getX(), vertex.getY(), vertex.getZ()));
+        }
+
+        target.textureVertices = new ArrayList<>();
+        for (com.cgvsu.math.vectors.Vector2f tex : source.textureVertices) {
+            target.textureVertices.add(new com.cgvsu.math.vectors.Vector2f(
+                    tex.getX(), tex.getY()));
+        }
+
+        target.normals = new ArrayList<>();
+        for (com.cgvsu.math.vectors.Vector3f normal : source.normals) {
+            target.normals.add(new com.cgvsu.math.vectors.Vector3f(
+                    normal.getX(), normal.getY(), normal.getZ()));
+        }
+
+        target.polygons = new ArrayList<>();
+        for (Polygon polygon : source.polygons) {
+            Polygon copyPolygon = new Polygon();
+            copyPolygon.setVertexIndices(new ArrayList<>(polygon.getVertexIndices()));
+            copyPolygon.setTextureVertexIndices(new ArrayList<>(polygon.getTextureVertexIndices()));
+            copyPolygon.setNormalIndices(new ArrayList<>(polygon.getNormalIndices()));
+            target.polygons.add(copyPolygon);
+        }
+    }
 }

@@ -1,17 +1,18 @@
 package com.cgvsu.math.matrices;
 
 public interface Matrix<T extends Matrix<T, V>, V> {
-    // Basic matrix arithmetic and transforms.
+    // Работа с матрицами
     T add(T other);
     T sub(T other);
     T mult(T other);
     V mult(V vector);
     T trans();
 
+    // Создание матриц
     T identity();
     T zero();
 
-    // Element access and debug output.
+    // Геттеры и Сеттеры
     float get(int row, int col);
     void set(int row, int col, float value);
     void print();

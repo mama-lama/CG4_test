@@ -4,6 +4,7 @@ import com.cgvsu.model.Model;
 import com.cgvsu.render_engine.Camera;
 
 public class SceneCamera {
+    // Ксюня: камера сцены с именем и гизмосом для визуализации (пункт 16).
     private final Camera camera;
     private final String name;
     private final Model gizmoModel;

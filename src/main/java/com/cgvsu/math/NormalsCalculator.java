@@ -11,6 +11,7 @@ public final class NormalsCalculator {
     }
 
     public static void recalculateNormals(Model model) {
+        // Ксюня: пересчет нормалей после загрузки/триангуляции (пункт 12).
         int vertexCount = model.vertices.size();
         ArrayList<Vector3f> accumulators = new ArrayList<>(vertexCount);
         for (int i = 0; i < vertexCount; i++) {

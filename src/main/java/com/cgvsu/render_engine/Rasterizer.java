@@ -1,9 +1,9 @@
 package com.cgvsu.render_engine;
 
+import java.util.Arrays;
+
 import com.cgvsu.math.vectors.Vector2f;
 import com.cgvsu.math.vectors.Vector3f;
-
-import java.util.Arrays;
 
 public final class Rasterizer {
     private static final float AMBIENT = 0.2f;
@@ -19,7 +19,15 @@ public final class Rasterizer {
         public final Vector3f position;
         public final Vector3f normal;
         public final Vector2f texCoord;
-
+        /**
+         * 
+         * @param x
+         * @param y
+         * @param z
+         * @param position
+         * @param normal
+         * @param texCoord
+         */
         public Vertex(float x, float y, float z, Vector3f position, Vector3f normal, Vector2f texCoord) {
             this.x = x;
             this.y = y;
@@ -46,7 +54,7 @@ public final class Rasterizer {
             int baseColor,
             TextureSampler textureSampler,
             Vector3f lightPos) {
-        // Point 13/14: triangle fill with Z-buffer, optional texture and lighting.
+        // Ксюня: растеризация треугольника с Z-буфером, текстурой и освещением (пункты 13-14).
         float area = edgeFunction(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y);
         if (Math.abs(area) < 1e-6f) {
             return;
@@ -111,7 +119,7 @@ public final class Rasterizer {
             int[] colorBuffer,
             float[] depthBuffer,
             int color) {
-        // Point 15: wireframe lines with Z-buffer.
+        // Ксюня: растеризация линий для режима сетки с Z-буфером (пункт 15).
         float dx = v1.x - v0.x;
         float dy = v1.y - v0.y;
         float dz = v1.z - v0.z;

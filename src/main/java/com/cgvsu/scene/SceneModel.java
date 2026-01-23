@@ -1,12 +1,14 @@
 package com.cgvsu.scene;
 
 import com.cgvsu.model.Model;
+import com.cgvsu.model.ModelOperations;
 import com.cgvsu.math.vectors.Vector3f;
 
 import java.nio.file.Path;
 
 public class SceneModel {
     private final Model model;
+    private final Model originalModel;
     private String name;
     private Path sourcePath;
     // Point 2/9/10: per-model transform stored in scene space.
@@ -16,12 +18,18 @@ public class SceneModel {
 
     public SceneModel(Model model, String name, Path sourcePath) {
         this.model = model;
+        this.originalModel = ModelOperations.createTransformedCopy(
+                model, new com.cgvsu.math.matrices.Matrix4().identity());
         this.name = name;
         this.sourcePath = sourcePath;
     }
 
     public Model getModel() {
         return model;
+    }
+
+    public Model getOriginalModel() {
+        return originalModel;
     }
 
     public String getName() {
@@ -77,6 +85,14 @@ public class SceneModel {
         translation.set(0, 0, 0);
         rotation.set(0, 0, 0);
         scale.set(1, 1, 1);
+    }
+
+    public void resetToOriginal() {
+        ModelOperations.copyInto(originalModel, model);
+    }
+
+    public void syncOriginal() {
+        ModelOperations.copyInto(model, originalModel);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.cgvsu.render_engine;
 
 public class RenderSettings {
+    // Ксюня: настройки режимов отрисовки (пункт 15).
     private boolean drawWireframe;
     private boolean useTexture;
     private boolean useLighting;

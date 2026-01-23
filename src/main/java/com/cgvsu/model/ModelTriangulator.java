@@ -7,6 +7,7 @@ public final class ModelTriangulator {
     }
 
     public static void triangulate(Model model) {
+        // Ксюня: триангуляция полигонов для подготовки к растеризации (пункт 12).
         ArrayList<Polygon> triangulated = new ArrayList<>();
         for (Polygon polygon : model.polygons) {
             ArrayList<Integer> vertexIndices = polygon.getVertexIndices();

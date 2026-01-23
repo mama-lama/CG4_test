@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CameraManager {
+    // Ксюня: хранение и переключение активной камеры (пункт 16).
     private final List<SceneCamera> cameras = new ArrayList<>();
     private int activeIndex = -1;
 

@@ -28,6 +28,36 @@
     -fx-text-fill: -cg-text;
 }
 
+.context-menu {
+    -fx-background-color: #10151d;
+    -fx-border-color: #2b3341;
+    -fx-border-width: 1;
+}
+
+.context-menu .menu-item {
+    -fx-background-color: transparent;
+}
+
+.context-menu .menu-item:focused {
+    -fx-background-color: #1f2631;
+}
+
+.context-menu .menu-item .label {
+    -fx-text-fill: -cg-text;
+}
+
+.context-menu .menu-item:disabled .label {
+    -fx-text-fill: -cg-muted;
+}
+
+.context-menu .menu-item .accelerator-text {
+    -fx-fill: -cg-muted;
+}
+
+.context-menu .menu-item .check-mark {
+    -fx-background-color: -cg-text;
+}
+
 .side-panel-scroll {
     -fx-background-color: transparent;
     -fx-border-color: -cg-panel-border;
